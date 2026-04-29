@@ -32,9 +32,7 @@ namespace Xeno.Starstay.Pages
 
             if (registered == true)
             {
-                StatusMessage = string.IsNullOrWhiteSpace(email)
-                    ? "Registration succeeded. You can log in now."
-                    : $"Registration succeeded for {email}. You can log in now.";
+                StatusMessage = "Registration succeeded. You can log in now.";
             }
 
             return Page();
@@ -69,9 +67,10 @@ namespace Xeno.Starstay.Pages
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Login threw an exception for {Email}.", Input.Email);
-                StatusMessage = $"Login hit a server error: {ex.Message}";
-                ModelState.AddModelError(string.Empty, $"Server error during login: {ex.Message}");
+                var traceId = HttpContext.TraceIdentifier;
+                _logger.LogError(ex, "Login threw an exception for {Email}. TraceId: {TraceId}", Input.Email, traceId);
+                StatusMessage = $"Login hit a server error. Reference ID: {traceId}";
+                ModelState.AddModelError(string.Empty, "We couldn't complete login because of a server error. Please try again.");
                 return Page();
             }
         }

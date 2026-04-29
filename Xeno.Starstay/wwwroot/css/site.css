@@ -531,6 +531,12 @@ h3 {
   border: 1px solid rgba(108, 247, 200, 0.32);
 }
 
+.auth-reference {
+  margin: 0.75rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
 .auth-debug {
   margin-bottom: 1.25rem;
   padding: 1rem;

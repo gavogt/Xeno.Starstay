@@ -67,22 +67,16 @@
                 </div>
             </div>
 
-            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage) || !string.IsNullOrWhiteSpace(Model.DebugDetails))
+            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
             {
                 <div id="registration-feedback" tabindex="-1">
-                    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
-                    {
-                        <div class="auth-status @(Model.WasSuccessful ? "auth-status-success" : "auth-status-info")">
-                            @Model.StatusMessage
-                        </div>
-                    }
+                    <div class="auth-status @(Model.WasSuccessful ? "auth-status-success" : "auth-status-info")">
+                        @Model.StatusMessage
+                    </div>
 
-                    @if (!string.IsNullOrWhiteSpace(Model.DebugDetails))
+                    @if (!string.IsNullOrWhiteSpace(Model.SupportReference))
                     {
-                        <div class="auth-debug">
-                            <strong>Registration diagnostics</strong>
-                            <pre>@Model.DebugDetails</pre>
-                        </div>
+                        <p class="auth-reference">Reference ID: @Model.SupportReference</p>
                     }
                 </div>
             }

@@ -1,0 +1,81 @@
+@page
+@model Xeno.Starstay.Pages.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<section class="auth-page-shell">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="auth-logo-orbit"></div>
+            <p class="auth-badge">Create Account</p>
+            <h1>Join the Starstay Network</h1>
+            <p class="auth-subtitle">
+                Register as a traveler, host, or both and unlock orbit-side rooms, wishlists, and guest messaging.
+            </p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+        {
+            <div class="auth-status">@Model.StatusMessage</div>
+        }
+
+        <form method="post" class="auth-form">
+            <div class="auth-grid">
+                <div class="auth-field">
+                    <label asp-for="Input.DisplayName" class="form-label"></label>
+                    <input asp-for="Input.DisplayName" class="form-control auth-control" placeholder="Nova Marrow" />
+                    <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Input.Species" class="form-label"></label>
+                    <input asp-for="Input.Species" class="form-control auth-control" placeholder="Human, Andari, Riftborn..." />
+                    <span asp-validation-for="Input.Species" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control auth-control" placeholder="traveler@starstay.space" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="auth-grid">
+                <div class="auth-field">
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <input asp-for="Input.Password" class="form-control auth-control" placeholder="Create a secure access key" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control auth-control" placeholder="Confirm your access key" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="auth-row auth-row-stack">
+                <div class="form-check">
+                    <input asp-for="Input.IsHost" class="form-check-input" />
+                    <label asp-for="Input.IsHost" class="form-check-label"></label>
+                </div>
+                <div class="form-check">
+                    <input asp-for="Input.AcceptTerms" class="form-check-input" />
+                    <label asp-for="Input.AcceptTerms" class="form-check-label"></label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">Register</button>
+        </form>
+
+        <p class="auth-switch">
+            Already have an account?
+            <a asp-page="/Login">Login here</a>
+        </p>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

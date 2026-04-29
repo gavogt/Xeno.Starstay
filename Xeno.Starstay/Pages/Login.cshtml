@@ -1,0 +1,56 @@
+@page
+@model Xeno.Starstay.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="auth-page-shell">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="auth-logo-orbit"></div>
+            <p class="auth-badge">Starstay Access</p>
+            <h1>Welcome Back to Starstay</h1>
+            <p class="auth-subtitle">
+                Sign in to manage saved suites, bookings, and hosting across the galaxy.
+            </p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+        {
+            <div class="auth-status">@Model.StatusMessage</div>
+        }
+
+        <form method="post" class="auth-form">
+            <div class="auth-field">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control auth-control" placeholder="captain@starstay.space" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="auth-field">
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password" class="form-control auth-control" placeholder="Enter your access key" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="auth-row">
+                <div class="form-check">
+                    <input asp-for="Input.RememberMe" class="form-check-input" />
+                    <label asp-for="Input.RememberMe" class="form-check-label"></label>
+                </div>
+                <a href="#">Forgot signal phrase?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">Login</button>
+        </form>
+
+        <p class="auth-switch">
+            New to Starstay?
+            <a asp-page="/Register">Create an account</a>
+        </p>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

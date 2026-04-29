@@ -17,10 +17,12 @@
 
         @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
         {
-            <div class="auth-status">@Model.StatusMessage</div>
+            <div class="auth-status auth-status-info">@Model.StatusMessage</div>
         }
 
-        <form method="post" class="auth-form">
+        <form method="post" asp-page="/Login" asp-antiforgery="true" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="auth-field">
                 <label asp-for="Input.Email" class="form-label"></label>
                 <input asp-for="Input.Email" class="form-control auth-control" placeholder="captain@starstay.space" />

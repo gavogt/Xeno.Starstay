@@ -518,9 +518,40 @@ h3 {
   margin-bottom: 1.25rem;
   padding: 0.9rem 1rem;
   border-radius: 18px;
+  color: var(--text-main);
+}
+
+.auth-status-info {
   background: rgba(61, 246, 255, 0.08);
   border: 1px solid rgba(61, 246, 255, 0.24);
+}
+
+.auth-status-success {
+  background: rgba(108, 247, 200, 0.1);
+  border: 1px solid rgba(108, 247, 200, 0.32);
+}
+
+.auth-debug {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 43, 214, 0.08);
+  border: 1px solid rgba(255, 43, 214, 0.24);
   color: var(--text-main);
+}
+
+.auth-debug strong {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.auth-debug pre {
+  margin: 0;
+  color: var(--text-soft);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .auth-form {
@@ -567,6 +598,12 @@ h3 {
 .auth-submit {
   width: 100%;
   margin-top: 0.25rem;
+}
+
+.auth-hint {
+  margin-bottom: 0;
+  color: var(--text-soft);
+  font-size: 0.94rem;
 }
 
 .auth-switch {

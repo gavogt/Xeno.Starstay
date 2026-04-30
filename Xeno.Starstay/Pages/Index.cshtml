@@ -21,7 +21,7 @@
         curated for humans, xenos, and every traveler in between.
     </p>
     <div class="hero-actions">
-        <a class="btn btn-primary btn-lg" href="#explore-starports">Explore Starports</a>
+        <a class="btn btn-primary btn-lg" asp-page="/Starports">Explore Starports</a>
         <a class="btn btn-outline-light btn-lg" asp-page="/AddStarship">List Your Starship</a>
     </div>
 </section>
@@ -49,12 +49,12 @@
     <div class="auth-highlight-actions">
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <a class="btn btn-primary btn-lg" href="#explore-starports">Continue Exploring</a>
+            <a class="btn btn-primary btn-lg" asp-page="/Starports">Continue Exploring</a>
             <a class="btn btn-outline-light btn-lg" asp-page="/AddStarship">Add A Starship</a>
         }
         else
         {
-            <a class="btn btn-primary btn-lg" asp-page="/Login">Login</a>
+            <a class="btn btn-primary btn-lg" asp-page="/Starports">See Live Listings</a>
             <a class="btn btn-outline-light btn-lg" asp-page="/AddStarship">Host On Starstay</a>
         }
     </div>

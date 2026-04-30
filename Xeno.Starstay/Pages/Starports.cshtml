@@ -1,0 +1,168 @@
+@page
+@model Xeno.Starstay.Pages.StarportsModel
+@{
+    ViewData["Title"] = "Starports";
+}
+
+<section class="traveler-page-shell">
+    <div class="traveler-hero">
+        <p class="eyebrow">Traveler Deck</p>
+        <h1 class="display-5">Browse every live Starstay listing in one orbit.</h1>
+        <p class="section-copy">
+            Scroll the live marketplace of starship suites, compare atmosphere and gravity profiles,
+            and lock in a voyage when the perfect cabin finds you.
+        </p>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="auth-status @Model.StatusCssClass traveler-status">
+            @Model.StatusMessage
+        </div>
+    }
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <section class="traveler-panel">
+            <div class="traveler-panel-heading">
+                <h2>Your Upcoming Voyages</h2>
+                <p>@Model.MyBookings.Count reservation@(Model.MyBookings.Count == 1 ? "" : "s") on the manifest</p>
+            </div>
+
+            @if (Model.MyBookings.Count == 0)
+            {
+                <div class="empty-state">
+                    <p>No voyages booked yet. Browse the orbit deck below and reserve your first stay.</p>
+                </div>
+            }
+            else
+            {
+                <div class="voyage-list">
+                    @foreach (var booking in Model.MyBookings)
+                    {
+                        <article class="voyage-card">
+                            <img src="@booking.StarshipListing?.PhotoUrl" alt="@booking.StarshipListing?.VesselName" class="voyage-card-image" />
+                            <div class="voyage-card-body">
+                                <p class="starport-label">Confirmed Voyage</p>
+                                <h3>@booking.StarshipListing?.VesselName</h3>
+                                <p class="traveler-location">@booking.StarshipListing?.AlienLocation</p>
+                                <div class="voyage-meta-grid">
+                                    <div class="host-spec">
+                                        <span>Arrival</span>
+                                        <strong>@booking.CheckInDate.ToString("MMM d, yyyy")</strong>
+                                    </div>
+                                    <div class="host-spec">
+                                        <span>Departure</span>
+                                        <strong>@booking.CheckOutDate.ToString("MMM d, yyyy")</strong>
+                                    </div>
+                                </div>
+                                <div class="host-meta">
+                                    <span>@booking.CycleCount cycle@(booking.CycleCount == 1 ? "" : "s") booked</span>
+                                    <strong>@booking.TotalNebulaCredits.ToString("0.00") nebula credits</strong>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    }
+
+    <section class="traveler-panel">
+        <div class="traveler-panel-heading">
+            <h2>Live Starship Listings</h2>
+            <p>@Model.Listings.Count stay@(Model.Listings.Count == 1 ? "" : "s") now boarding</p>
+        </div>
+
+        @if (Model.Listings.Count == 0)
+        {
+            <div class="empty-state">
+                <p>No live starship listings yet. Hosts will appear here the moment they launch a stay.</p>
+            </div>
+        }
+        else
+        {
+            <div class="traveler-listings">
+                @foreach (var listing in Model.Listings)
+                {
+                    <article class="traveler-card">
+                        <img src="@listing.PhotoUrl" alt="@listing.VesselName" class="traveler-card-image" />
+                        <div class="traveler-card-body">
+                            <div class="traveler-card-heading">
+                                <div>
+                                    <p class="starport-label">Open Orbit</p>
+                                    <h3>@listing.VesselName</h3>
+                                </div>
+                                <strong class="traveler-price">@listing.NightlyRate.ToString("0.00") nebula credits/cycle</strong>
+                            </div>
+
+                            <p class="traveler-location">@listing.AlienLocation</p>
+
+                            <div class="traveler-copy-block">
+                                <p class="traveler-copy-label">Stay Summary</p>
+                                <p class="traveler-summary">@listing.Summary</p>
+                            </div>
+
+                            <div class="traveler-spec-grid">
+                                <div class="host-spec">
+                                    <span>Atmosphere</span>
+                                    <strong>@listing.AtmosphereProfile</strong>
+                                </div>
+                                <div class="host-spec">
+                                    <span>Gravity</span>
+                                    <strong>@listing.GravityProfile</strong>
+                                </div>
+                                <div class="host-spec">
+                                    <span>Hosted By</span>
+                                    <strong>@(listing.HostUser?.DisplayName ?? "Starstay Host")</strong>
+                                </div>
+                                <div class="host-spec">
+                                    <span>Launch Date</span>
+                                    <strong>@listing.CreatedUtc.ToLocalTime().ToString("MMM d, yyyy")</strong>
+                                </div>
+                            </div>
+
+                            <div class="host-pill-grid">
+                                <span class="host-pill @(listing.HasOxygen ? "host-pill-active" : "host-pill-muted")">
+                                    @(listing.HasOxygen ? "Oxygen ready" : "Bring your own oxygen")
+                                </span>
+                                <span class="host-pill @(listing.SupportsSiliconLifeforms ? "host-pill-active" : "host-pill-muted")">
+                                    @(listing.SupportsSiliconLifeforms ? "Silicon-safe habitat" : "Carbon-biased systems")
+                                </span>
+                                <span class="host-pill @(listing.AllowsAlienPets ? "host-pill-active" : "host-pill-muted")">
+                                    @(listing.AllowsAlienPets ? "Alien pets welcome" : "No alien pets")
+                                </span>
+                                <span class="host-pill @(listing.HasQuantumDock ? "host-pill-active" : "host-pill-muted")">
+                                    @(listing.HasQuantumDock ? "Quantum dock access" : "Standard docking")
+                                </span>
+                                <span class="host-pill @(listing.HasBioluminescentSpa ? "host-pill-active" : "host-pill-muted")">
+                                    @(listing.HasBioluminescentSpa ? "Glow spa chamber" : "No spa chamber")
+                                </span>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(listing.AmenityNotes))
+                            {
+                                <p class="traveler-notes">
+                                    <strong>Habitat notes:</strong> @listing.AmenityNotes
+                                </p>
+                            }
+
+                            <div class="traveler-cta-row">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <a class="btn btn-primary" asp-page="/BookStarship" asp-route-id="@listing.Id">Book Voyage</a>
+                                    <a class="btn btn-outline-light" asp-page="/AddStarship">Become A Host</a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-primary" asp-page="/Login" asp-route-returnUrl="@Url.Page("/BookStarship", new { id = listing.Id })">Login To Book</a>
+                                    <a class="btn btn-outline-light" asp-page="/Register">Create Account</a>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</section>

@@ -38,12 +38,16 @@
                             <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Starports">Starports</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
                     @if (isSignedIn)
                     {
                         <div class="nav-auth nav-auth-signedin">
+                            <a class="btn btn-outline-light nav-cta" asp-page="/Starports">Browse</a>
                             <a class="btn btn-primary nav-cta" asp-page="/AddStarship">Add Starship</a>
                             <span class="user-greeting">Welcome, @displayName</span>
                             <form method="post" asp-page="/Logout" class="logout-form">

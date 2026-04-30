@@ -1,0 +1,228 @@
+@page "{id:int}"
+@using System.Globalization
+@model Xeno.Starstay.Pages.BookStarshipModel
+@{
+    ViewData["Title"] = "Book Starship";
+}
+
+<section class="booking-page-shell">
+    <div class="booking-header">
+        <p class="eyebrow">Voyage Planner</p>
+        <h1 class="display-5">Reserve your orbit aboard @Model.Listing?.VesselName.</h1>
+        <p class="section-copy">
+            Choose an arrival window, lock in your number of cycles, and send your traveler manifest to Starstay.
+        </p>
+        <a class="btn btn-outline-light" asp-page="/Starports">Back To Starports</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="auth-status @Model.StatusCssClass traveler-status">
+            @Model.StatusMessage
+        </div>
+    }
+
+    @if (Model.Listing is not null)
+    {
+        <div class="booking-layout">
+            <section class="booking-showcase-panel">
+                <img src="@Model.Listing.PhotoUrl" alt="@Model.Listing.VesselName" class="booking-showcase-image" />
+                <div class="booking-showcase-body">
+                    <div class="traveler-card-heading">
+                        <div>
+                            <p class="starport-label">Starship Stay</p>
+                            <h2>@Model.Listing.VesselName</h2>
+                        </div>
+                        <strong class="traveler-price">@Model.Listing.NightlyRate.ToString("0.00") nebula credits/cycle</strong>
+                    </div>
+
+                    <p class="traveler-location">@Model.Listing.AlienLocation</p>
+
+                    <div class="traveler-copy-block">
+                        <p class="traveler-copy-label">Stay Summary</p>
+                        <p class="traveler-summary">@Model.Listing.Summary</p>
+                    </div>
+
+                    <div class="traveler-spec-grid">
+                        <div class="host-spec">
+                            <span>Atmosphere</span>
+                            <strong>@Model.Listing.AtmosphereProfile</strong>
+                        </div>
+                        <div class="host-spec">
+                            <span>Gravity</span>
+                            <strong>@Model.Listing.GravityProfile</strong>
+                        </div>
+                        <div class="host-spec">
+                            <span>Hosted By</span>
+                            <strong>@(Model.Listing.HostUser?.DisplayName ?? "Starstay Host")</strong>
+                        </div>
+                        <div class="host-spec">
+                            <span>Launch Date</span>
+                            <strong>@Model.Listing.CreatedUtc.ToLocalTime().ToString("MMM d, yyyy")</strong>
+                        </div>
+                    </div>
+
+                    <div class="host-pill-grid">
+                        <span class="host-pill @(Model.Listing.HasOxygen ? "host-pill-active" : "host-pill-muted")">
+                            @(Model.Listing.HasOxygen ? "Oxygen ready" : "Bring your own oxygen")
+                        </span>
+                        <span class="host-pill @(Model.Listing.SupportsSiliconLifeforms ? "host-pill-active" : "host-pill-muted")">
+                            @(Model.Listing.SupportsSiliconLifeforms ? "Silicon-safe habitat" : "Carbon-biased systems")
+                        </span>
+                        <span class="host-pill @(Model.Listing.AllowsAlienPets ? "host-pill-active" : "host-pill-muted")">
+                            @(Model.Listing.AllowsAlienPets ? "Alien pets welcome" : "No alien pets")
+                        </span>
+                        <span class="host-pill @(Model.Listing.HasQuantumDock ? "host-pill-active" : "host-pill-muted")">
+                            @(Model.Listing.HasQuantumDock ? "Quantum dock access" : "Standard docking")
+                        </span>
+                        <span class="host-pill @(Model.Listing.HasBioluminescentSpa ? "host-pill-active" : "host-pill-muted")">
+                            @(Model.Listing.HasBioluminescentSpa ? "Glow spa chamber" : "No spa chamber")
+                        </span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Listing.AmenityNotes))
+                    {
+                        <p class="traveler-notes">
+                            <strong>Habitat notes:</strong> @Model.Listing.AmenityNotes
+                        </p>
+                    }
+                </div>
+            </section>
+
+            <section class="booking-form-panel">
+                <div class="traveler-panel-heading">
+                    <h2>Book Your Stay</h2>
+                    <p>Rate is locked per cycle and totals update from your selected dates.</p>
+                </div>
+
+                @if (Model.IsOwnListing)
+                {
+                    <div class="auth-status auth-status-info">
+                        This is your own listing, so it cannot be booked from the traveler side.
+                    </div>
+                }
+                else
+                {
+                    <form method="post" class="host-form booking-form" data-nightly-rate="@Model.Listing.NightlyRate.ToString("0.00", CultureInfo.InvariantCulture)">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="auth-grid">
+                            <div class="auth-field">
+                                <label asp-for="Input.CheckInDate" class="form-label"></label>
+                                <input asp-for="Input.CheckInDate" class="form-control auth-control" type="date" />
+                                <span asp-validation-for="Input.CheckInDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="auth-field">
+                                <label asp-for="Input.CheckOutDate" class="form-label"></label>
+                                <input asp-for="Input.CheckOutDate" class="form-control auth-control" type="date" />
+                                <span asp-validation-for="Input.CheckOutDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.ArrivalNotes" class="form-label"></label>
+                            <textarea asp-for="Input.ArrivalNotes" class="form-control auth-control host-notesarea" placeholder="Optional notes about docking, translator drones, or arrival rituals."></textarea>
+                            <span asp-validation-for="Input.ArrivalNotes" class="text-danger"></span>
+                        </div>
+
+                        <div class="booking-cost-preview">
+                            <div class="booking-cost-line">
+                                <span>Rate</span>
+                                <strong>@Model.Listing.NightlyRate.ToString("0.00") nebula credits/cycle</strong>
+                            </div>
+                            <div class="booking-cost-line">
+                                <span>Estimated total</span>
+                                <strong id="bookingTotalPreview">Select travel dates</strong>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary auth-submit">Confirm Voyage</button>
+                    </form>
+                }
+
+                @if (Model.MyBookingsForListing.Count > 0)
+                {
+                    <div class="booking-side-block">
+                        <p class="traveler-copy-label">Your Upcoming Voyages Here</p>
+                        <div class="booking-window-list">
+                            @foreach (var booking in Model.MyBookingsForListing)
+                            {
+                                <div class="booking-window-card booking-window-card-active">
+                                    <strong>@booking.CheckInDate.ToString("MMM d, yyyy") to @booking.CheckOutDate.ToString("MMM d, yyyy")</strong>
+                                    <span>@booking.CycleCount cycle@(booking.CycleCount == 1 ? "" : "s") · @booking.TotalNebulaCredits.ToString("0.00") nebula credits</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="booking-side-block">
+                    <p class="traveler-copy-label">Upcoming Reserved Windows</p>
+                    @if (Model.UpcomingReservedWindows.Count == 0)
+                    {
+                        <p class="section-copy booking-availability-note">This starship has no future conflicts yet. You are early to the airlock.</p>
+                    }
+                    else
+                    {
+                        <div class="booking-window-list">
+                            @foreach (var booking in Model.UpcomingReservedWindows)
+                            {
+                                <div class="booking-window-card">
+                                    <strong>@booking.CheckInDate.ToString("MMM d, yyyy") to @booking.CheckOutDate.ToString("MMM d, yyyy")</strong>
+                                    <span>@booking.CycleCount cycle@(booking.CycleCount == 1 ? "" : "s") blocked</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const form = document.querySelector(".booking-form");
+            if (!form) {
+                return;
+            }
+
+            const checkInInput = form.querySelector("input[name='Input.CheckInDate']");
+            const checkOutInput = form.querySelector("input[name='Input.CheckOutDate']");
+            const totalPreview = document.getElementById("bookingTotalPreview");
+            const nightlyRate = Number.parseFloat(form.dataset.nightlyRate ?? "0");
+
+            if (!checkInInput || !checkOutInput || !totalPreview || Number.isNaN(nightlyRate)) {
+                return;
+            }
+
+            const formatNebulaCredits = (value) => `${value.toFixed(2)} nebula credits`;
+
+            const updatePreview = () => {
+                if (!checkInInput.value || !checkOutInput.value) {
+                    totalPreview.textContent = "Select travel dates";
+                    return;
+                }
+
+                const checkIn = new Date(checkInInput.value);
+                const checkOut = new Date(checkOutInput.value);
+                const cycleLength = Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+                if (cycleLength <= 0) {
+                    totalPreview.textContent = "Choose a valid cycle range";
+                    return;
+                }
+
+                totalPreview.textContent = `${formatNebulaCredits(cycleLength * nightlyRate)} for ${cycleLength} cycle${cycleLength === 1 ? "" : "s"}`;
+            };
+
+            checkInInput.addEventListener("input", updatePreview);
+            checkOutInput.addEventListener("input", updatePreview);
+            updatePreview();
+        })();
+    </script>
+}

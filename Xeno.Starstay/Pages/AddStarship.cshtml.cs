@@ -144,6 +144,15 @@ namespace Xeno.Starstay.Pages
                 return RedirectToPage();
             }
 
+            var hasBookings = await _dbContext.StarshipBookings
+                .AnyAsync(booking => booking.StarshipListingId == listing.Id);
+
+            if (hasBookings)
+            {
+                QueueStatus("This listing already has traveler bookings in orbit and cannot be deleted until those voyages are resolved.");
+                return RedirectToPage();
+            }
+
             DeleteUploadedPhoto(listing.PhotoUrl);
 
             _dbContext.StarshipListings.Remove(listing);

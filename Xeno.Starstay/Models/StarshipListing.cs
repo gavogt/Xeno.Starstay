@@ -67,6 +67,8 @@ namespace Xeno.Starstay.Models
 
         public ApplicationUser? HostUser { get; set; }
 
+        public ICollection<StarshipBooking> Bookings { get; set; } = new List<StarshipBooking>();
+
         public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     }
 }

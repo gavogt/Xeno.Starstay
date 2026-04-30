@@ -109,13 +109,13 @@
                         <div class="auth-grid">
                             <div class="auth-field">
                                 <label asp-for="Input.CheckInDate" class="form-label"></label>
-                                <input asp-for="Input.CheckInDate" class="form-control auth-control" type="date" />
+                                <input asp-for="Input.CheckInDate" class="form-control auth-control" type="date" min="@Model.Today.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="Input.CheckInDate" class="text-danger"></span>
                             </div>
 
                             <div class="auth-field">
                                 <label asp-for="Input.CheckOutDate" class="form-label"></label>
-                                <input asp-for="Input.CheckOutDate" class="form-control auth-control" type="date" />
+                                <input asp-for="Input.CheckOutDate" class="form-control auth-control" type="date" min="@Model.Today.AddDays(1).ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="Input.CheckOutDate" class="text-danger"></span>
                             </div>
                         </div>
@@ -140,6 +140,59 @@
                         <button type="submit" class="btn btn-primary auth-submit">Confirm Voyage</button>
                     </form>
                 }
+
+                <div class="booking-side-block booking-calendar-block">
+                    <div class="booking-calendar-header">
+                        <div>
+                            <p class="traveler-copy-label">Availability Calendar</p>
+                            <p class="booking-calendar-copy">Use the orbit map below to scout open cycles before you lock in a reservation.</p>
+                        </div>
+                    </div>
+
+                    <div class="booking-calendar-legend">
+                        <span class="booking-legend-pill booking-legend-open">Open</span>
+                        <span class="booking-legend-pill booking-legend-booked">Reserved</span>
+                        <span class="booking-legend-pill booking-legend-mine">Your voyage</span>
+                        <span class="booking-legend-pill booking-legend-selected">Selected window</span>
+                    </div>
+
+                    <div class="booking-calendar-grid">
+                        @foreach (var calendar in Model.AvailabilityCalendars)
+                        {
+                            <section class="booking-calendar-month">
+                                <div class="booking-calendar-month-header">
+                                    <h3>@calendar.MonthLabel</h3>
+                                </div>
+
+                                <div class="booking-calendar-weekdays" aria-hidden="true">
+                                    <span>Sun</span>
+                                    <span>Mon</span>
+                                    <span>Tue</span>
+                                    <span>Wed</span>
+                                    <span>Thu</span>
+                                    <span>Fri</span>
+                                    <span>Sat</span>
+                                </div>
+
+                                <div class="booking-calendar-days">
+                                    @foreach (var day in calendar.Days)
+                                    {
+                                        if (day.IsBlank)
+                                        {
+                                            <span class="availability-day availability-day-blank"></span>
+                                        }
+                                        else
+                                        {
+                                            <div class="availability-day @day.StatusClass" title="@day.IsoDate - @day.StatusLabel" aria-label="@day.IsoDate - @day.StatusLabel">
+                                                <span>@day.DayNumber</span>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </section>
+                        }
+                    </div>
+                </div>
 
                 @if (Model.MyBookingsForListing.Count > 0)
                 {

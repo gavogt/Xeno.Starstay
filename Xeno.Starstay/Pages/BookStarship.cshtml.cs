@@ -34,6 +34,8 @@ namespace Xeno.Starstay.Pages
 
         public List<StarshipBooking> CancelledBookingsForListing { get; private set; } = new();
 
+        public List<AvailabilityMonthViewModel> AvailabilityCalendars { get; private set; } = new();
+
         public string? StatusMessage { get; private set; }
 
         public string StatusCssClass { get; private set; } = "auth-status-info";
@@ -165,10 +167,13 @@ namespace Xeno.Starstay.Pages
                 UpcomingReservedWindows = new List<StarshipBooking>();
                 MyBookingsForListing = new List<StarshipBooking>();
                 CancelledBookingsForListing = new List<StarshipBooking>();
+                AvailabilityCalendars = new List<AvailabilityMonthViewModel>();
                 return;
             }
 
             var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            var calendarStart = new DateOnly(today.Year, today.Month, 1);
+            var calendarHorizonExclusive = calendarStart.AddMonths(2);
 
             UpcomingReservedWindows = await _dbContext.StarshipBookings
                 .AsNoTracking()
@@ -204,6 +209,18 @@ namespace Xeno.Starstay.Pages
                 MyBookingsForListing = new List<StarshipBooking>();
                 CancelledBookingsForListing = new List<StarshipBooking>();
             }
+
+            var calendarBookings = await _dbContext.StarshipBookings
+                .AsNoTracking()
+                .Where(booking =>
+                    booking.StarshipListingId == listingId &&
+                    !booking.IsCancelled &&
+                    booking.CheckInDate < calendarHorizonExclusive &&
+                    booking.CheckOutDate > calendarStart)
+                .OrderBy(booking => booking.CheckInDate)
+                .ToListAsync();
+
+            AvailabilityCalendars = BuildAvailabilityCalendars(calendarStart, calendarBookings);
         }
 
         private void ApplyQueuedStatus()
@@ -238,6 +255,82 @@ namespace Xeno.Starstay.Pages
             };
         }
 
+        private List<AvailabilityMonthViewModel> BuildAvailabilityCalendars(
+            DateOnly calendarStart,
+            List<StarshipBooking> calendarBookings)
+        {
+            var calendars = new List<AvailabilityMonthViewModel>();
+            var selectedCheckIn = Input.CheckInDate;
+            var selectedCheckOut = Input.CheckOutDate;
+
+            for (var monthOffset = 0; monthOffset < 2; monthOffset++)
+            {
+                var monthStart = calendarStart.AddMonths(monthOffset);
+                var nextMonthStart = monthStart.AddMonths(1);
+                var days = new List<AvailabilityDayViewModel>();
+
+                for (var blankIndex = 0; blankIndex < (int)monthStart.DayOfWeek; blankIndex++)
+                {
+                    days.Add(AvailabilityDayViewModel.CreateBlank());
+                }
+
+                for (var day = monthStart; day < nextMonthStart; day = day.AddDays(1))
+                {
+                    var bookingForDay = calendarBookings.FirstOrDefault(booking =>
+                        day >= booking.CheckInDate &&
+                        day < booking.CheckOutDate);
+
+                    var isPast = day < Today;
+                    var isSelected =
+                        selectedCheckIn.HasValue &&
+                        selectedCheckOut.HasValue &&
+                        day >= selectedCheckIn.Value &&
+                        day < selectedCheckOut.Value;
+
+                    var isMyBooking = bookingForDay is not null &&
+                        string.Equals(bookingForDay.GuestUserId, CurrentUserId, StringComparison.Ordinal);
+
+                    var statusClass = isPast
+                        ? "availability-day-past"
+                        : isMyBooking
+                            ? "availability-day-mine"
+                            : bookingForDay is not null
+                                ? "availability-day-booked"
+                                : "availability-day-open";
+
+                    if (isSelected && !isPast)
+                    {
+                        statusClass += " availability-day-selected";
+                    }
+
+                    var statusLabel = isPast
+                        ? "Past date"
+                        : isMyBooking
+                            ? "Your booked cycle"
+                            : bookingForDay is not null
+                                ? "Reserved"
+                                : "Available";
+
+                    days.Add(new AvailabilityDayViewModel
+                    {
+                        DayNumber = day.Day,
+                        IsoDate = day.ToString("yyyy-MM-dd"),
+                        StatusClass = statusClass,
+                        StatusLabel = statusLabel,
+                        IsInteractive = !isPast
+                    });
+                }
+
+                calendars.Add(new AvailabilityMonthViewModel
+                {
+                    MonthLabel = monthStart.ToString("MMMM yyyy"),
+                    Days = days
+                });
+            }
+
+            return calendars;
+        }
+
         public class BookingInputModel
         {
             [Required]
@@ -253,6 +346,40 @@ namespace Xeno.Starstay.Pages
             [StringLength(280)]
             [Display(Name = "Arrival protocol notes")]
             public string? ArrivalNotes { get; set; }
+        }
+
+        public class AvailabilityMonthViewModel
+        {
+            public string MonthLabel { get; init; } = string.Empty;
+
+            public List<AvailabilityDayViewModel> Days { get; init; } = new();
+        }
+
+        public class AvailabilityDayViewModel
+        {
+            public int? DayNumber { get; init; }
+
+            public string IsoDate { get; init; } = string.Empty;
+
+            public string StatusClass { get; init; } = string.Empty;
+
+            public string StatusLabel { get; init; } = string.Empty;
+
+            public bool IsInteractive { get; init; }
+
+            public bool IsBlank => !DayNumber.HasValue;
+
+            public static AvailabilityDayViewModel CreateBlank()
+            {
+                return new AvailabilityDayViewModel
+                {
+                    DayNumber = null,
+                    IsoDate = string.Empty,
+                    StatusClass = "availability-day-blank",
+                    StatusLabel = string.Empty,
+                    IsInteractive = false
+                };
+            }
         }
     }
 }

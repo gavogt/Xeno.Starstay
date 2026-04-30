@@ -18,20 +18,49 @@ namespace Xeno.Starstay.Models
         public string AlienLocation { get; set; } = string.Empty;
 
         [Required]
-        [Url]
+        [StringLength(400)]
         [Display(Name = "Photo URL")]
         public string PhotoUrl { get; set; } = string.Empty;
 
         [Required]
         [Range(1, 1000000)]
         [Column(TypeName = "decimal(10,2)")]
-        [Display(Name = "Nightly price")]
+        [Display(Name = "Nightly nebula credits")]
         public decimal NightlyRate { get; set; }
 
         [Required]
         [StringLength(320)]
         [Display(Name = "Listing summary")]
         public string Summary { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(80)]
+        [Display(Name = "Atmosphere profile")]
+        public string AtmosphereProfile { get; set; } = "Oxygen-rich";
+
+        [Required]
+        [StringLength(80)]
+        [Display(Name = "Gravity profile")]
+        public string GravityProfile { get; set; } = "Earthlike pull";
+
+        [Display(Name = "Alien pets allowed")]
+        public bool AllowsAlienPets { get; set; }
+
+        [Display(Name = "Oxygen supplied")]
+        public bool HasOxygen { get; set; } = true;
+
+        [Display(Name = "Supports silicon lifeforms")]
+        public bool SupportsSiliconLifeforms { get; set; }
+
+        [Display(Name = "Quantum dock access")]
+        public bool HasQuantumDock { get; set; }
+
+        [Display(Name = "Bioluminescent spa chamber")]
+        public bool HasBioluminescentSpa { get; set; }
+
+        [StringLength(280)]
+        [Display(Name = "Extra habitat notes")]
+        public string? AmenityNotes { get; set; }
 
         [Required]
         public string HostUserId { get; set; } = string.Empty;

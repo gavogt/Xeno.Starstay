@@ -9,7 +9,7 @@
         <p class="eyebrow">Host Console</p>
         <h1 class="display-5">List a starship stay for curious travelers.</h1>
         <p class="section-copy">
-            Add a photogenic cabin, set your nightly price, and publish an alien destination that feels worthy of Starstay.
+            Add a photogenic cabin, tune the habitat settings, and publish an alien destination that feels worthy of Starstay.
         </p>
     </div>
 
@@ -19,7 +19,7 @@
 
             @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
             {
-                <div class="auth-status @(Model.WasSuccessful ? "auth-status-success" : "auth-status-info")">
+                <div class="auth-status @Model.StatusCssClass">
                     @Model.StatusMessage
                 </div>
             }
@@ -53,23 +53,100 @@
                     </div>
                 </div>
 
-                <div class="auth-field">
-                    <label asp-for="Input.NightlyRate" class="form-label"></label>
-                    <input asp-for="Input.NightlyRate" class="form-control auth-control" placeholder="480" />
-                    <span asp-validation-for="Input.NightlyRate" class="text-danger"></span>
+                <div class="auth-grid">
+                    <div class="auth-field">
+                        <label asp-for="Input.NightlyRate" class="form-label"></label>
+                        <input asp-for="Input.NightlyRate" class="form-control auth-control" placeholder="480" />
+                        <p class="auth-hint">Set your rate in nebula credits per cycle for traveling guests.</p>
+                        <span asp-validation-for="Input.NightlyRate" class="text-danger"></span>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="Input.GravityProfile" class="form-label"></label>
+                        <select asp-for="Input.GravityProfile" asp-items="Model.GravityOptions" class="form-select auth-control host-select"></select>
+                        <span asp-validation-for="Input.GravityProfile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="host-field-group">
+                    <div class="host-field-copy">
+                        <h3>Habitat Setup</h3>
+                        <p>Define the environmental settings travelers will step into the second they board.</p>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="Input.AtmosphereProfile" class="form-label"></label>
+                        <select asp-for="Input.AtmosphereProfile" asp-items="Model.AtmosphereOptions" class="form-select auth-control host-select"></select>
+                        <span asp-validation-for="Input.AtmosphereProfile" class="text-danger"></span>
+                    </div>
+
+                    <div class="host-check-grid">
+                        <label class="host-toggle-card">
+                            <input asp-for="Input.HasOxygen" class="form-check-input host-toggle-input" />
+                            <span class="host-toggle-content">
+                                <strong>Oxygen supplied</strong>
+                                <span>Keep human and hybrid travelers comfortably breathing.</span>
+                            </span>
+                        </label>
+
+                        <label class="host-toggle-card">
+                            <input asp-for="Input.SupportsSiliconLifeforms" class="form-check-input host-toggle-input" />
+                            <span class="host-toggle-content">
+                                <strong>Silicon lifeforms welcome</strong>
+                                <span>Advertise mineral-safe surfaces and lifeform compatibility.</span>
+                            </span>
+                        </label>
+
+                        <label class="host-toggle-card">
+                            <input asp-for="Input.AllowsAlienPets" class="form-check-input host-toggle-input" />
+                            <span class="host-toggle-content">
+                                <strong>Alien pets allowed</strong>
+                                <span>Open your hatch to companion spores, scaled orbitals, and micro-drakes.</span>
+                            </span>
+                        </label>
+
+                        <label class="host-toggle-card">
+                            <input asp-for="Input.HasQuantumDock" class="form-check-input host-toggle-input" />
+                            <span class="host-toggle-content">
+                                <strong>Quantum dock access</strong>
+                                <span>Let guests warp in quickly with premium docking clearance.</span>
+                            </span>
+                        </label>
+
+                        <label class="host-toggle-card">
+                            <input asp-for="Input.HasBioluminescentSpa" class="form-check-input host-toggle-input" />
+                            <span class="host-toggle-content">
+                                <strong>Bioluminescent spa chamber</strong>
+                                <span>Add a hypnotic glow retreat for post-jump recovery.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="host-field-group">
+                    <div class="host-field-copy">
+                        <h3>Summary Section</h3>
+                        <p>Give travelers the emotional pitch for the stay: the vibe, the setting, and why they should book it.</p>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="Input.Summary" class="form-label"></label>
+                        <textarea asp-for="Input.Summary" class="form-control auth-control host-textarea" placeholder="Describe the alien ambience, the mood, and what makes the stay unforgettable."></textarea>
+                        <span asp-validation-for="Input.Summary" class="text-danger"></span>
+                    </div>
                 </div>
 
                 <div class="auth-field">
-                    <label asp-for="Input.Summary" class="form-label"></label>
-                    <textarea asp-for="Input.Summary" class="form-control auth-control host-textarea" placeholder="Describe the alien ambience, the mood, and what makes the stay unforgettable."></textarea>
-                    <span asp-validation-for="Input.Summary" class="text-danger"></span>
+                    <label asp-for="Input.AmenityNotes" class="form-label"></label>
+                    <textarea asp-for="Input.AmenityNotes" class="form-control auth-control host-notesarea" placeholder="Optional extras like moonpool rituals, crystal observatories, translator drones, or house rules."></textarea>
+                    <span asp-validation-for="Input.AmenityNotes" class="text-danger"></span>
                 </div>
 
                 <button type="submit" class="btn btn-primary auth-submit">Save Listing</button>
             </form>
         </section>
 
-        <section class="host-panel">
+        <section class="host-panel host-panel-scroll">
             <div class="host-panel-heading">
                 <h2>Your Starships</h2>
                 <p>@Model.Listings.Count listing@(Model.Listings.Count == 1 ? "" : "s") in orbit</p>
@@ -83,29 +160,149 @@
             }
             else
             {
-                <div class="host-listings">
-                    @foreach (var listing in Model.Listings)
-                    {
-                        <article class="host-listing-card">
-                            <img src="@listing.PhotoUrl" alt="@listing.VesselName" class="host-listing-image" />
-                            <div class="host-listing-body">
-                                <p class="starport-label">Hosted Destination</p>
-                                <h3>@listing.VesselName</h3>
-                                <p class="host-location">@listing.AlienLocation</p>
-                                <p class="host-summary">@listing.Summary</p>
-                                <div class="host-meta">
-                                    <span>@listing.CreatedUtc.ToLocalTime().ToString("MMM d, yyyy")</span>
-                                    <strong>$@listing.NightlyRate.ToString("0.00")/night</strong>
+                <div class="host-listings-shell">
+                    <p class="host-scroll-hint">New listings now stay inside a scrollable orbit deck instead of stretching the whole page.</p>
+
+                    <div class="host-listings">
+                        @foreach (var listing in Model.Listings)
+                        {
+                            <article class="host-listing-card">
+                                <img src="@listing.PhotoUrl" alt="@listing.VesselName" class="host-listing-image" />
+                                <div class="host-listing-body">
+                                    <div class="host-listing-heading">
+                                        <div>
+                                            <p class="starport-label">Hosted Destination</p>
+                                            <h3>@listing.VesselName</h3>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-light host-delete-trigger"
+                                            data-listing-id="@listing.Id"
+                                            data-listing-name="@listing.VesselName">
+                                            Delete
+                                        </button>
+                                    </div>
+
+                                    <p class="host-location">@listing.AlienLocation</p>
+                                    <div class="host-copy-block">
+                                        <p class="host-copy-label">Stay Summary</p>
+                                        <p class="host-summary">@listing.Summary</p>
+                                    </div>
+
+                                    <div class="host-spec-grid">
+                                        <div class="host-spec">
+                                            <span>Atmosphere</span>
+                                            <strong>@listing.AtmosphereProfile</strong>
+                                        </div>
+                                        <div class="host-spec">
+                                            <span>Gravity</span>
+                                            <strong>@listing.GravityProfile</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="host-pill-grid">
+                                        <span class="host-pill @(listing.HasOxygen ? "host-pill-active" : "host-pill-muted")">
+                                            @(listing.HasOxygen ? "Oxygen ready" : "Bring your own oxygen")
+                                        </span>
+                                        <span class="host-pill @(listing.SupportsSiliconLifeforms ? "host-pill-active" : "host-pill-muted")">
+                                            @(listing.SupportsSiliconLifeforms ? "Silicon-safe" : "Carbon-biased systems")
+                                        </span>
+                                        <span class="host-pill @(listing.AllowsAlienPets ? "host-pill-active" : "host-pill-muted")">
+                                            @(listing.AllowsAlienPets ? "Alien pets welcome" : "No alien pets")
+                                        </span>
+                                        <span class="host-pill @(listing.HasQuantumDock ? "host-pill-active" : "host-pill-muted")">
+                                            @(listing.HasQuantumDock ? "Quantum dock" : "Standard docking")
+                                        </span>
+                                        <span class="host-pill @(listing.HasBioluminescentSpa ? "host-pill-active" : "host-pill-muted")">
+                                            @(listing.HasBioluminescentSpa ? "Glow spa" : "No spa chamber")
+                                        </span>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(listing.AmenityNotes))
+                                    {
+                                        <p class="host-notes">
+                                            <strong>Extra notes:</strong> @listing.AmenityNotes
+                                        </p>
+                                    }
+
+                                    <div class="host-meta">
+                                        <span>@listing.CreatedUtc.ToLocalTime().ToString("MMM d, yyyy")</span>
+                                        <strong>@listing.NightlyRate.ToString("0.00") nebula credits/cycle</strong>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
-                    }
+                            </article>
+                        }
+                    </div>
                 </div>
             }
         </section>
     </div>
 </section>
 
+<div class="host-confirm-backdrop" id="deleteConfirmBackdrop" hidden>
+    <div class="host-confirm-card" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle">
+        <p class="starport-label">Delete Listing</p>
+        <h2 id="deleteConfirmTitle">Delete <span id="deleteListingName">this listing</span>?</h2>
+        <p class="host-confirm-warning">
+            This permanently removes the listing from Starstay and cannot be undone.
+        </p>
+
+        <form method="post" asp-page-handler="Delete" class="host-confirm-form">
+            <input type="hidden" name="listingId" id="deleteListingId" />
+
+            <div class="host-confirm-actions">
+                <button type="button" class="btn btn-outline-light" id="cancelDeleteButton">Keep Listing</button>
+                <button type="submit" class="btn btn-primary host-confirm-delete">Delete Forever</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const backdrop = document.getElementById("deleteConfirmBackdrop");
+            const deleteButtons = document.querySelectorAll(".host-delete-trigger");
+            const cancelButton = document.getElementById("cancelDeleteButton");
+            const deleteListingId = document.getElementById("deleteListingId");
+            const deleteListingName = document.getElementById("deleteListingName");
+
+            if (!backdrop || !cancelButton || !deleteListingId || !deleteListingName || deleteButtons.length === 0) {
+                return;
+            }
+
+            const closeDialog = () => {
+                backdrop.hidden = true;
+                deleteListingId.value = "";
+                deleteListingName.textContent = "this listing";
+                document.body.classList.remove("modal-open");
+            };
+
+            deleteButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    deleteListingId.value = button.dataset.listingId ?? "";
+                    deleteListingName.textContent = button.dataset.listingName ?? "this listing";
+                    backdrop.hidden = false;
+                    document.body.classList.add("modal-open");
+                });
+            });
+
+            cancelButton.addEventListener("click", closeDialog);
+
+            backdrop.addEventListener("click", (event) => {
+                if (event.target === backdrop) {
+                    closeDialog();
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && !backdrop.hidden) {
+                    closeDialog();
+                }
+            });
+        })();
+    </script>
 }

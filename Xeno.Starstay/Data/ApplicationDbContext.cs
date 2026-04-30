@@ -36,6 +36,12 @@ namespace Xeno.Starstay.Data
                 .WithMany(user => user.VoyagerBookings)
                 .HasForeignKey(booking => booking.GuestUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ApplicationUser>()
+                .HasData(StarstaySeedCatalog.SeedHost);
+
+            builder.Entity<StarshipListing>()
+                .HasData(StarstaySeedCatalog.SeedListings());
         }
     }
 }

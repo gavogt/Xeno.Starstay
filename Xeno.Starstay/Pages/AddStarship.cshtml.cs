@@ -64,6 +64,8 @@ namespace Xeno.Starstay.Pages
 
         public IReadOnlyList<SelectListItem> GravityOptions => BuildOptions(GravityChoices, Input.GravityProfile);
 
+        public IReadOnlyList<SelectListItem> SpeciesOptions => SpeciesCatalog.BuildOptions(Input.SpeciesCompatibility);
+
         public async Task OnGetAsync()
         {
             ApplyQueuedStatus();
@@ -72,6 +74,11 @@ namespace Xeno.Starstay.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (!SpeciesCatalog.SpeciesOptions.Contains(Input.SpeciesCompatibility, StringComparer.Ordinal))
+            {
+                ModelState.AddModelError(nameof(Input.SpeciesCompatibility), "Choose a species channel from the Starstay compatibility registry.");
+            }
+
             if (!ModelState.IsValid)
             {
                 SetPageStatus("Your listing needs a few fixes before it can launch.");
@@ -110,6 +117,7 @@ namespace Xeno.Starstay.Pages
                 Summary = Input.Summary.Trim(),
                 AtmosphereProfile = Input.AtmosphereProfile,
                 GravityProfile = Input.GravityProfile,
+                SpeciesCompatibility = Input.SpeciesCompatibility,
                 AllowsAlienPets = Input.AllowsAlienPets,
                 HasOxygen = Input.HasOxygen,
                 SupportsSiliconLifeforms = Input.SupportsSiliconLifeforms,
@@ -270,6 +278,7 @@ namespace Xeno.Starstay.Pages
             {
                 AtmosphereProfile = AtmosphereChoices[0],
                 GravityProfile = GravityChoices[0],
+                SpeciesCompatibility = SpeciesCatalog.SpeciesOptions[0],
                 HasOxygen = true
             };
         }
@@ -323,6 +332,11 @@ namespace Xeno.Starstay.Pages
             [StringLength(80)]
             [Display(Name = "Gravity profile")]
             public string GravityProfile { get; set; } = GravityChoices[0];
+
+            [Required]
+            [StringLength(80)]
+            [Display(Name = "Species compatibility")]
+            public string SpeciesCompatibility { get; set; } = SpeciesCatalog.SpeciesOptions[0];
 
             [Display(Name = "Alien pets allowed")]
             public bool AllowsAlienPets { get; set; }

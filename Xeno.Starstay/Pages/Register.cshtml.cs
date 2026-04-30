@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using Xeno.Starstay.Data;
 using Xeno.Starstay.Models;
 
 namespace Xeno.Starstay.Pages
@@ -27,6 +29,8 @@ namespace Xeno.Starstay.Pages
 
         public string? SupportReference { get; set; }
 
+        public IReadOnlyList<SelectListItem> SpeciesOptions => SpeciesCatalog.BuildOptions(Input.Species, "Select your species");
+
         public IActionResult OnGet()
         {
             if (User.Identity?.IsAuthenticated == true)
@@ -44,6 +48,11 @@ namespace Xeno.Starstay.Pages
         {
             try
             {
+                if (!SpeciesCatalog.SpeciesOptions.Contains(Input.Species, StringComparer.Ordinal))
+                {
+                    ModelState.AddModelError(nameof(Input.Species), "Choose a species from the Starstay registry.");
+                }
+
                 if (!ModelState.IsValid)
                 {
                     Response.StatusCode = StatusCodes.Status400BadRequest;

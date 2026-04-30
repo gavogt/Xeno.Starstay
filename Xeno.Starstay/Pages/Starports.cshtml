@@ -150,11 +150,11 @@
                         <div class="traveler-filter-copy">
                             <p class="traveler-filter-kicker">Signal Search</p>
                             <h3>Global Search</h3>
-                            <p>Scan vessel names, hosts, gravity, atmosphere, habitat notes, and amenity language from one field.</p>
+                            <p>Scan vessel names, hosts, gravity, atmosphere, species compatibility, habitat notes, and amenity language from one field.</p>
                         </div>
 
                         <div class="auth-field traveler-filter-input-wrap">
-                            <input id="SearchTerm" name="SearchTerm" value="@Model.SearchTerm" class="form-control auth-control traveler-filter-input" placeholder="Try: Velora, low-gravity, oxygen, pets, quantum dock..." />
+                            <input id="SearchTerm" name="SearchTerm" value="@Model.SearchTerm" class="form-control auth-control traveler-filter-input" placeholder="Try: Velora, Nordic, low-gravity, oxygen, pets, quantum dock..." />
                         </div>
                     </div>
 
@@ -172,6 +172,26 @@
                                 {
                                     <option value="@location" selected="@(location == Model.SelectedLocation)">
                                         @location
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="traveler-filter-card">
+                        <div class="traveler-filter-copy">
+                            <p class="traveler-filter-kicker">Species Filter</p>
+                            <h3>Compatibility Channel</h3>
+                            <p>Drill into stays tuned for a specific traveler species, from Zeta Reticulans to Time Travelers and Nordic envoys.</p>
+                        </div>
+
+                        <div class="auth-field traveler-filter-input-wrap">
+                            <select id="SelectedSpecies" name="SelectedSpecies" class="form-select auth-control host-select traveler-filter-input">
+                                <option value="">All species channels</option>
+                                @foreach (var species in Model.AvailableSpecies)
+                                {
+                                    <option value="@species" selected="@(species == Model.SelectedSpecies)">
+                                        @species
                                     </option>
                                 }
                             </select>
@@ -274,6 +294,10 @@
                                     <strong>@listing.GravityProfile</strong>
                                 </div>
                                 <div class="host-spec">
+                                    <span>Species</span>
+                                    <strong>@listing.SpeciesCompatibility</strong>
+                                </div>
+                                <div class="host-spec">
                                     <span>Hosted By</span>
                                     <strong>@(listing.HostUser?.DisplayName ?? "Starstay Host")</strong>
                                 </div>
@@ -340,6 +364,7 @@
             <input type="hidden" name="bookingId" id="cancelBookingId" />
             <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
             <input type="hidden" name="SelectedLocation" value="@Model.SelectedLocation" />
+            <input type="hidden" name="SelectedSpecies" value="@Model.SelectedSpecies" />
             <input type="hidden" name="RequiresOxygen" value="@Model.RequiresOxygen" />
             <input type="hidden" name="RequiresAlienPets" value="@Model.RequiresAlienPets" />
             <input type="hidden" name="RequiresSiliconSupport" value="@Model.RequiresSiliconSupport" />

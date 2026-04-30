@@ -27,6 +27,9 @@ namespace Xeno.Starstay.Pages
         public string SelectedLocation { get; set; } = string.Empty;
 
         [BindProperty(SupportsGet = true)]
+        public string SelectedSpecies { get; set; } = string.Empty;
+
+        [BindProperty(SupportsGet = true)]
         public bool RequiresOxygen { get; set; }
 
         [BindProperty(SupportsGet = true)]
@@ -46,6 +49,8 @@ namespace Xeno.Starstay.Pages
 
         public List<string> AvailableLocations { get; private set; } = new();
 
+        public List<string> AvailableSpecies { get; private set; } = new();
+
         public string? StatusMessage { get; private set; }
 
         public string StatusCssClass { get; private set; } = "auth-status-info";
@@ -53,6 +58,7 @@ namespace Xeno.Starstay.Pages
         public bool HasActiveFilters =>
             !string.IsNullOrWhiteSpace(SearchTerm) ||
             !string.IsNullOrWhiteSpace(SelectedLocation) ||
+            !string.IsNullOrWhiteSpace(SelectedSpecies) ||
             RequiresOxygen ||
             RequiresAlienPets ||
             RequiresSiliconSupport ||
@@ -91,6 +97,7 @@ namespace Xeno.Starstay.Pages
                 {
                     SearchTerm,
                     SelectedLocation,
+                    SelectedSpecies,
                     RequiresOxygen,
                     RequiresAlienPets,
                     RequiresSiliconSupport,
@@ -108,6 +115,7 @@ namespace Xeno.Starstay.Pages
                 {
                     SearchTerm,
                     SelectedLocation,
+                    SelectedSpecies,
                     RequiresOxygen,
                     RequiresAlienPets,
                     RequiresSiliconSupport,
@@ -141,6 +149,7 @@ namespace Xeno.Starstay.Pages
             {
                 SearchTerm,
                 SelectedLocation,
+                SelectedSpecies,
                 RequiresOxygen,
                 RequiresAlienPets,
                 RequiresSiliconSupport,
@@ -154,6 +163,13 @@ namespace Xeno.Starstay.Pages
                 .AsNoTracking()
                 .OrderBy(listing => listing.AlienLocation)
                 .Select(listing => listing.AlienLocation)
+                .Distinct()
+                .ToListAsync();
+
+            AvailableSpecies = await _dbContext.StarshipListings
+                .AsNoTracking()
+                .OrderBy(listing => listing.SpeciesCompatibility)
+                .Select(listing => listing.SpeciesCompatibility)
                 .Distinct()
                 .ToListAsync();
 
@@ -179,6 +195,7 @@ namespace Xeno.Starstay.Pages
                     listing.Summary.Contains(term) ||
                     listing.AtmosphereProfile.Contains(term) ||
                     listing.GravityProfile.Contains(term) ||
+                    listing.SpeciesCompatibility.Contains(term) ||
                     (listing.AmenityNotes != null && listing.AmenityNotes.Contains(term)) ||
                     (matchesOxygenKeyword && listing.HasOxygen) ||
                     (matchesPetsKeyword && listing.AllowsAlienPets) ||
@@ -191,6 +208,12 @@ namespace Xeno.Starstay.Pages
             {
                 var location = SelectedLocation.Trim();
                 listingsQuery = listingsQuery.Where(listing => listing.AlienLocation == location);
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedSpecies))
+            {
+                var species = SelectedSpecies.Trim();
+                listingsQuery = listingsQuery.Where(listing => listing.SpeciesCompatibility == species);
             }
 
             if (RequiresOxygen)

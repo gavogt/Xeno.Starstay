@@ -43,6 +43,11 @@ namespace Xeno.Starstay.Models
         [Display(Name = "Gravity profile")]
         public string GravityProfile { get; set; } = "Earthlike pull";
 
+        [Required]
+        [StringLength(80)]
+        [Display(Name = "Species compatibility")]
+        public string SpeciesCompatibility { get; set; } = "Zeta Reticulan";
+
         [Display(Name = "Alien pets allowed")]
         public bool AllowsAlienPets { get; set; }
 

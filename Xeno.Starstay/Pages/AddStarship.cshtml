@@ -70,6 +70,13 @@
                     </div>
                 </div>
 
+                <div class="auth-field">
+                    <label asp-for="Input.SpeciesCompatibility" class="form-label"></label>
+                    <select asp-for="Input.SpeciesCompatibility" asp-items="Model.SpeciesOptions" class="form-select auth-control host-select"></select>
+                    <p class="auth-hint">Choose the primary traveler species this stay is tuned for, so guests can filter by compatibility.</p>
+                    <span asp-validation-for="Input.SpeciesCompatibility" class="text-danger"></span>
+                </div>
+
                 <div class="host-field-group">
                     <div class="host-field-copy">
                         <h3>Habitat Setup</h3>
@@ -200,6 +207,10 @@
                                         <div class="host-spec">
                                             <span>Gravity</span>
                                             <strong>@listing.GravityProfile</strong>
+                                        </div>
+                                        <div class="host-spec">
+                                            <span>Species</span>
+                                            <strong>@listing.SpeciesCompatibility</strong>
                                         </div>
                                     </div>
 

@@ -27,7 +27,7 @@
 
                 <div class="auth-field">
                     <label asp-for="Input.Species" class="form-label"></label>
-                    <input asp-for="Input.Species" class="form-control auth-control" placeholder="Human, Andari, Riftborn..." />
+                    <select asp-for="Input.Species" asp-items="Model.SpeciesOptions" class="form-select auth-control host-select"></select>
                     <span asp-validation-for="Input.Species" class="text-danger"></span>
                 </div>
             </div>

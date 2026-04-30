@@ -176,6 +176,22 @@
                         </div>
                     }
                 </div>
+
+                @if (Model.CancelledBookingsForListing.Count > 0)
+                {
+                    <div class="booking-side-block">
+                        <p class="traveler-copy-label">Cancelled Archive For This Stay</p>
+                        <div class="booking-window-list">
+                            @foreach (var booking in Model.CancelledBookingsForListing)
+                            {
+                                <div class="booking-window-card booking-window-card-cancelled">
+                                    <strong>@booking.CheckInDate.ToString("MMM d, yyyy") to @booking.CheckOutDate.ToString("MMM d, yyyy")</strong>
+                                    <span>Cancelled @booking.CancelledUtc?.ToLocalTime().ToString("MMM d, yyyy")</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </section>
         </div>
     }

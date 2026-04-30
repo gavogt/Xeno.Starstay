@@ -26,26 +26,35 @@
         <section class="traveler-panel">
             <div class="traveler-panel-heading">
                 <h2>Your Upcoming Voyages</h2>
-                <p>@Model.MyBookings.Count reservation@(Model.MyBookings.Count == 1 ? "" : "s") on the manifest</p>
+                <p>@Model.UpcomingBookings.Count reservation@(Model.UpcomingBookings.Count == 1 ? "" : "s") on the manifest</p>
             </div>
 
-            @if (Model.MyBookings.Count == 0)
+            @if (Model.UpcomingBookings.Count == 0)
             {
                 <div class="empty-state">
-                    <p>No voyages booked yet. Browse the orbit deck below and reserve your first stay.</p>
+                    <p>No active voyages booked yet. Browse the orbit deck below and reserve your first stay.</p>
                 </div>
             }
             else
             {
                 <div class="voyage-list">
-                    @foreach (var booking in Model.MyBookings)
+                    @foreach (var voyage in Model.UpcomingBookings)
                     {
+                        var booking = voyage.Booking;
+
                         <article class="voyage-card">
                             <img src="@booking.StarshipListing?.PhotoUrl" alt="@booking.StarshipListing?.VesselName" class="voyage-card-image" />
                             <div class="voyage-card-body">
-                                <p class="starport-label">Confirmed Voyage</p>
-                                <h3>@booking.StarshipListing?.VesselName</h3>
+                                <div class="voyage-card-heading">
+                                    <div>
+                                        <p class="starport-label">Traveler Manifest</p>
+                                        <h3>@booking.StarshipListing?.VesselName</h3>
+                                    </div>
+                                    <span class="voyage-status-pill @voyage.StatusClass">@voyage.StatusLabel</span>
+                                </div>
+
                                 <p class="traveler-location">@booking.StarshipListing?.AlienLocation</p>
+
                                 <div class="voyage-meta-grid">
                                     <div class="host-spec">
                                         <span>Arrival</span>
@@ -56,10 +65,70 @@
                                         <strong>@booking.CheckOutDate.ToString("MMM d, yyyy")</strong>
                                     </div>
                                 </div>
+
+                                @if (!string.IsNullOrWhiteSpace(booking.ArrivalNotes))
+                                {
+                                    <p class="traveler-notes">
+                                        <strong>Arrival notes:</strong> @booking.ArrivalNotes
+                                    </p>
+                                }
+
                                 <div class="host-meta">
                                     <span>@booking.CycleCount cycle@(booking.CycleCount == 1 ? "" : "s") booked</span>
                                     <strong>@booking.TotalNebulaCredits.ToString("0.00") nebula credits</strong>
                                 </div>
+
+                                @if (voyage.CanCancel)
+                                {
+                                    <div class="voyage-card-actions">
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-light voyage-cancel-trigger"
+                                            data-booking-id="@booking.Id"
+                                            data-listing-name="@booking.StarshipListing?.VesselName">
+                                            Cancel Voyage
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="traveler-panel">
+            <div class="traveler-panel-heading">
+                <h2>Traveler Booking History</h2>
+                <p>@Model.BookingHistory.Count record@(Model.BookingHistory.Count == 1 ? "" : "s") stored in your archive</p>
+            </div>
+
+            @if (Model.BookingHistory.Count == 0)
+            {
+                <div class="empty-state">
+                    <p>Your history archive is still clear. Cancelled and completed voyages will appear here over time.</p>
+                </div>
+            }
+            else
+            {
+                <div class="voyage-history-list">
+                    @foreach (var voyage in Model.BookingHistory)
+                    {
+                        var booking = voyage.Booking;
+
+                        <article class="voyage-history-card">
+                            <div class="voyage-history-header">
+                                <div>
+                                    <p class="starport-label">Archive Entry</p>
+                                    <h3>@booking.StarshipListing?.VesselName</h3>
+                                </div>
+                                <span class="voyage-status-pill @voyage.StatusClass">@voyage.StatusLabel</span>
+                            </div>
+
+                            <p class="traveler-location">@booking.StarshipListing?.AlienLocation</p>
+                            <div class="voyage-history-meta">
+                                <span>@booking.CheckInDate.ToString("MMM d, yyyy") to @booking.CheckOutDate.ToString("MMM d, yyyy")</span>
+                                <strong>@booking.TotalNebulaCredits.ToString("0.00") nebula credits</strong>
                             </div>
                         </article>
                     }
@@ -258,3 +327,74 @@
         }
     </section>
 </section>
+
+<div class="host-confirm-backdrop" id="cancelVoyageBackdrop" hidden>
+    <div class="host-confirm-card" role="dialog" aria-modal="true" aria-labelledby="cancelVoyageTitle">
+        <p class="starport-label">Cancel Voyage</p>
+        <h2 id="cancelVoyageTitle">Cancel <span id="cancelVoyageName">this booking</span>?</h2>
+        <p class="host-confirm-warning">
+            This will remove the active reservation from your upcoming manifest and move it into traveler booking history.
+        </p>
+
+        <form method="post" asp-page-handler="CancelBooking" class="host-confirm-form">
+            <input type="hidden" name="bookingId" id="cancelBookingId" />
+            <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+            <input type="hidden" name="SelectedLocation" value="@Model.SelectedLocation" />
+            <input type="hidden" name="RequiresOxygen" value="@Model.RequiresOxygen" />
+            <input type="hidden" name="RequiresAlienPets" value="@Model.RequiresAlienPets" />
+            <input type="hidden" name="RequiresSiliconSupport" value="@Model.RequiresSiliconSupport" />
+            <input type="hidden" name="RequiresQuantumDock" value="@Model.RequiresQuantumDock" />
+
+            <div class="host-confirm-actions">
+                <button type="button" class="btn btn-outline-light" id="cancelVoyageDismiss">Keep Booking</button>
+                <button type="submit" class="btn btn-primary host-confirm-delete">Confirm Cancellation</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const backdrop = document.getElementById("cancelVoyageBackdrop");
+            const triggerButtons = document.querySelectorAll(".voyage-cancel-trigger");
+            const dismissButton = document.getElementById("cancelVoyageDismiss");
+            const bookingIdInput = document.getElementById("cancelBookingId");
+            const listingNameLabel = document.getElementById("cancelVoyageName");
+
+            if (!backdrop || !dismissButton || !bookingIdInput || !listingNameLabel || triggerButtons.length === 0) {
+                return;
+            }
+
+            const closeDialog = () => {
+                backdrop.hidden = true;
+                bookingIdInput.value = "";
+                listingNameLabel.textContent = "this booking";
+                document.body.classList.remove("modal-open");
+            };
+
+            triggerButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    bookingIdInput.value = button.dataset.bookingId ?? "";
+                    listingNameLabel.textContent = button.dataset.listingName ?? "this booking";
+                    backdrop.hidden = false;
+                    document.body.classList.add("modal-open");
+                });
+            });
+
+            dismissButton.addEventListener("click", closeDialog);
+
+            backdrop.addEventListener("click", (event) => {
+                if (event.target === backdrop) {
+                    closeDialog();
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && !backdrop.hidden) {
+                    closeDialog();
+                }
+            });
+        })();
+    </script>
+}

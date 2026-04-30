@@ -32,6 +32,8 @@ namespace Xeno.Starstay.Pages
 
         public List<StarshipBooking> MyBookingsForListing { get; private set; } = new();
 
+        public List<StarshipBooking> CancelledBookingsForListing { get; private set; } = new();
+
         public string? StatusMessage { get; private set; }
 
         public string StatusCssClass { get; private set; } = "auth-status-info";
@@ -45,6 +47,8 @@ namespace Xeno.Starstay.Pages
         public string? TempStatusTone { get; set; }
 
         public bool IsOwnListing => Listing is not null && string.Equals(Listing.HostUserId, CurrentUserId, StringComparison.Ordinal);
+
+        public DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -117,6 +121,7 @@ namespace Xeno.Starstay.Pages
             var hasOverlap = await _dbContext.StarshipBookings
                 .AnyAsync(booking =>
                     booking.StarshipListingId == Listing.Id &&
+                    !booking.IsCancelled &&
                     checkInDate < booking.CheckOutDate &&
                     booking.CheckInDate < checkOutDate);
 
@@ -159,6 +164,7 @@ namespace Xeno.Starstay.Pages
             {
                 UpcomingReservedWindows = new List<StarshipBooking>();
                 MyBookingsForListing = new List<StarshipBooking>();
+                CancelledBookingsForListing = new List<StarshipBooking>();
                 return;
             }
 
@@ -166,7 +172,7 @@ namespace Xeno.Starstay.Pages
 
             UpcomingReservedWindows = await _dbContext.StarshipBookings
                 .AsNoTracking()
-                .Where(booking => booking.StarshipListingId == listingId && booking.CheckOutDate >= today)
+                .Where(booking => booking.StarshipListingId == listingId && !booking.IsCancelled && booking.CheckOutDate >= today)
                 .OrderBy(booking => booking.CheckInDate)
                 .Take(6)
                 .ToListAsync();
@@ -178,13 +184,25 @@ namespace Xeno.Starstay.Pages
                     .Where(booking =>
                         booking.StarshipListingId == listingId &&
                         booking.GuestUserId == CurrentUserId &&
+                        !booking.IsCancelled &&
                         booking.CheckOutDate >= today)
                     .OrderBy(booking => booking.CheckInDate)
+                    .ToListAsync();
+
+                CancelledBookingsForListing = await _dbContext.StarshipBookings
+                    .AsNoTracking()
+                    .Where(booking =>
+                        booking.StarshipListingId == listingId &&
+                        booking.GuestUserId == CurrentUserId &&
+                        booking.IsCancelled)
+                    .OrderByDescending(booking => booking.CancelledUtc)
+                    .Take(4)
                     .ToListAsync();
             }
             else
             {
                 MyBookingsForListing = new List<StarshipBooking>();
+                CancelledBookingsForListing = new List<StarshipBooking>();
             }
         }
 

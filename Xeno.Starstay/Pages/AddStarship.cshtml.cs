@@ -145,7 +145,10 @@ namespace Xeno.Starstay.Pages
             }
 
             var hasBookings = await _dbContext.StarshipBookings
-                .AnyAsync(booking => booking.StarshipListingId == listing.Id);
+                .AnyAsync(booking =>
+                    booking.StarshipListingId == listing.Id &&
+                    !booking.IsCancelled &&
+                    booking.CheckOutDate > DateOnly.FromDateTime(DateTime.UtcNow.Date));
 
             if (hasBookings)
             {
@@ -205,7 +208,7 @@ namespace Xeno.Starstay.Pages
         {
             if (Input.PhotoFile is null)
             {
-                var photoUrl = Input.PhotoUrl.Trim();
+                var photoUrl = (Input.PhotoUrl ?? string.Empty).Trim();
 
                 if (photoUrl.StartsWith("/", StringComparison.Ordinal))
                 {
@@ -296,7 +299,7 @@ namespace Xeno.Starstay.Pages
             public string AlienLocation { get; set; } = string.Empty;
 
             [Display(Name = "Optional external image URL")]
-            public string PhotoUrl { get; set; } = string.Empty;
+            public string? PhotoUrl { get; set; }
 
             [Display(Name = "Upload photo")]
             public IFormFile? PhotoFile { get; set; }

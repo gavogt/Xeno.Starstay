@@ -37,6 +37,12 @@ namespace Xeno.Starstay.Models
         [Display(Name = "Arrival protocol notes")]
         public string? ArrivalNotes { get; set; }
 
+        [Display(Name = "Booking cancelled")]
+        public bool IsCancelled { get; set; }
+
+        [Display(Name = "Cancelled at")]
+        public DateTime? CancelledUtc { get; set; }
+
         public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     }
 }

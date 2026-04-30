@@ -40,7 +40,9 @@ namespace Xeno.Starstay.Pages
 
         public List<StarshipListing> Listings { get; private set; } = new();
 
-        public List<StarshipBooking> MyBookings { get; private set; } = new();
+        public List<TravelerBookingViewModel> UpcomingBookings { get; private set; } = new();
+
+        public List<TravelerBookingViewModel> BookingHistory { get; private set; } = new();
 
         public List<string> AvailableLocations { get; private set; } = new();
 
@@ -66,7 +68,84 @@ namespace Xeno.Starstay.Pages
         {
             ApplyQueuedStatus();
             await LoadListingsAsync();
-            await LoadMyBookingsAsync();
+            await LoadTravelerBookingsAsync();
+        }
+
+        public async Task<IActionResult> OnPostCancelBookingAsync(int bookingId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var booking = await _dbContext.StarshipBookings
+                .Include(item => item.StarshipListing)
+                .FirstOrDefaultAsync(item => item.Id == bookingId && item.GuestUserId == userId);
+
+            if (booking is null)
+            {
+                TempStatusMessage = "That booking could not be found on your traveler manifest.";
+                TempStatusTone = "info";
+                return RedirectToPage(new
+                {
+                    SearchTerm,
+                    SelectedLocation,
+                    RequiresOxygen,
+                    RequiresAlienPets,
+                    RequiresSiliconSupport,
+                    RequiresQuantumDock
+                });
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+            if (booking.IsCancelled)
+            {
+                TempStatusMessage = "That voyage was already cancelled.";
+                TempStatusTone = "info";
+                return RedirectToPage(new
+                {
+                    SearchTerm,
+                    SelectedLocation,
+                    RequiresOxygen,
+                    RequiresAlienPets,
+                    RequiresSiliconSupport,
+                    RequiresQuantumDock
+                });
+            }
+
+            if (booking.CheckInDate <= today)
+            {
+                TempStatusMessage = "Only future voyages can be cancelled from the traveler deck.";
+                TempStatusTone = "info";
+                return RedirectToPage(new
+                {
+                    SearchTerm,
+                    SelectedLocation,
+                    RequiresOxygen,
+                    RequiresAlienPets,
+                    RequiresSiliconSupport,
+                    RequiresQuantumDock
+                });
+            }
+
+            booking.IsCancelled = true;
+            booking.CancelledUtc = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
+
+            TempStatusMessage = $"{booking.StarshipListing?.VesselName ?? "Your voyage"} was cancelled and moved into booking history.";
+            TempStatusTone = "success";
+
+            return RedirectToPage(new
+            {
+                SearchTerm,
+                SelectedLocation,
+                RequiresOxygen,
+                RequiresAlienPets,
+                RequiresSiliconSupport,
+                RequiresQuantumDock
+            });
         }
 
         private async Task LoadListingsAsync()
@@ -139,24 +218,65 @@ namespace Xeno.Starstay.Pages
                 .ToListAsync();
         }
 
-        private async Task LoadMyBookingsAsync()
+        private async Task LoadTravelerBookingsAsync()
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrWhiteSpace(userId))
             {
-                MyBookings = new List<StarshipBooking>();
+                UpcomingBookings = new List<TravelerBookingViewModel>();
+                BookingHistory = new List<TravelerBookingViewModel>();
                 return;
             }
 
             var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
-            MyBookings = await _dbContext.StarshipBookings
+            var travelerBookings = await _dbContext.StarshipBookings
                 .AsNoTracking()
                 .Include(booking => booking.StarshipListing)
-                .Where(booking => booking.GuestUserId == userId && booking.CheckOutDate >= today)
-                .OrderBy(booking => booking.CheckInDate)
-                .ThenBy(booking => booking.StarshipListing!.VesselName)
+                .Where(booking => booking.GuestUserId == userId)
+                .OrderByDescending(booking => booking.CheckInDate)
+                .ThenByDescending(booking => booking.CreatedUtc)
                 .ToListAsync();
+
+            UpcomingBookings = travelerBookings
+                .Where(booking => !booking.IsCancelled && booking.CheckOutDate >= today)
+                .OrderBy(booking => booking.CheckInDate)
+                .Select(booking => ToViewModel(booking, today))
+                .ToList();
+
+            BookingHistory = travelerBookings
+                .Where(booking => booking.IsCancelled || booking.CheckOutDate < today)
+                .Select(booking => ToViewModel(booking, today))
+                .ToList();
+        }
+
+        private static TravelerBookingViewModel ToViewModel(StarshipBooking booking, DateOnly today)
+        {
+            var status = booking.IsCancelled
+                ? "Cancelled"
+                : booking.CheckOutDate < today
+                    ? "Completed"
+                    : booking.CheckInDate <= today
+                        ? "In Progress"
+                        : "Confirmed";
+
+            var toneClass = booking.IsCancelled
+                ? "voyage-status-cancelled"
+                : booking.CheckOutDate < today
+                    ? "voyage-status-completed"
+                    : booking.CheckInDate <= today
+                        ? "voyage-status-active"
+                        : "voyage-status-confirmed";
+
+            var canCancel = !booking.IsCancelled && booking.CheckInDate > today;
+
+            return new TravelerBookingViewModel
+            {
+                Booking = booking,
+                StatusLabel = status,
+                StatusClass = toneClass,
+                CanCancel = canCancel
+            };
         }
 
         private void ApplyQueuedStatus()
@@ -170,6 +290,17 @@ namespace Xeno.Starstay.Pages
             StatusCssClass = string.Equals(TempStatusTone, "success", StringComparison.OrdinalIgnoreCase)
                 ? "auth-status-success"
                 : "auth-status-info";
+        }
+
+        public class TravelerBookingViewModel
+        {
+            public StarshipBooking Booking { get; init; } = null!;
+
+            public string StatusLabel { get; init; } = string.Empty;
+
+            public string StatusClass { get; init; } = string.Empty;
+
+            public bool CanCancel { get; init; }
         }
     }
 }

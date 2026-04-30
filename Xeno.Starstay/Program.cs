@@ -17,6 +17,15 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = "Starstay.Session";
+    options.IdleTimeout = TimeSpan.FromHours(8);
+});
+
 builder.Services
     .AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath))
@@ -55,6 +64,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 

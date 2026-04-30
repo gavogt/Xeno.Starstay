@@ -10,11 +10,16 @@ namespace Xeno.Starstay.Pages
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -56,6 +61,13 @@ namespace Xeno.Starstay.Pages
 
                 if (result.Succeeded)
                 {
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user is not null)
+                    {
+                        HttpContext.Session.SetString("DisplayName", user.DisplayName);
+                        HttpContext.Session.SetString("UserEmail", user.Email ?? Input.Email);
+                    }
+
                     StatusMessage = "Welcome back to Starstay.";
                     return RedirectToPage("/Index");
                 }

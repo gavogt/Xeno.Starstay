@@ -1,7 +1,16 @@
-﻿@page
+@page
 @model IndexModel
+@using Microsoft.AspNetCore.Http
+@using Xeno.Starstay.Models
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Home page";
+    var greetingName = HttpContext.Session.GetString("DisplayName");
+
+    if (User.Identity?.IsAuthenticated == true && string.IsNullOrWhiteSpace(greetingName))
+    {
+        greetingName = (await UserManager.GetUserAsync(User))?.DisplayName ?? User.Identity?.Name;
+    }
 }
 
 <section class="hero-panel text-center">
@@ -20,15 +29,36 @@
 <section class="auth-highlight">
     <div class="auth-highlight-copy">
         <p class="eyebrow">Member Access</p>
-        <h2 class="display-5">Sign in to save starships, or register to list your own.</h2>
-        <p class="section-copy">
-            Keep favorite rooms, manage interstellar itineraries, and launch your host profile from a dedicated
-            Starstay account.
-        </p>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <h2 class="display-5">Welcome back, @greetingName.</h2>
+            <p class="section-copy">
+                Your Starstay session is active. Dive back into saved stays, manage your bookings,
+                and continue exploring the far edge of luxury.
+            </p>
+        }
+        else
+        {
+            <h2 class="display-5">Sign in to save starships, or register to list your own.</h2>
+            <p class="section-copy">
+                Keep favorite rooms, manage interstellar itineraries, and launch your host profile from a dedicated
+                Starstay account.
+            </p>
+        }
     </div>
     <div class="auth-highlight-actions">
-        <a class="btn btn-primary btn-lg" asp-page="/Login">Login</a>
-        <a class="btn btn-outline-light btn-lg" asp-page="/Register">Register</a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="btn btn-primary btn-lg" href="#explore-starports">Continue Exploring</a>
+            <form method="post" asp-page="/Logout" class="auth-inline-form">
+                <button type="submit" class="btn btn-outline-light btn-lg">Logout</button>
+            </form>
+        }
+        else
+        {
+            <a class="btn btn-primary btn-lg" asp-page="/Login">Login</a>
+            <a class="btn btn-outline-light btn-lg" asp-page="/Register">Register</a>
+        }
     </div>
 </section>
 

@@ -1,4 +1,18 @@
-﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Http
+@using Xeno.Starstay.Models
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@{
+    var isSignedIn = SignInManager.IsSignedIn(User);
+    var displayName = Context.Session.GetString("DisplayName");
+
+    if (isSignedIn && string.IsNullOrWhiteSpace(displayName))
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        displayName = currentUser?.DisplayName ?? currentUser?.UserName ?? User.Identity?.Name;
+    }
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -27,10 +41,22 @@
                             <a class="nav-link" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
-                    <div class="nav-auth">
-                        <a class="nav-link auth-link" asp-area="" asp-page="/Login">Login</a>
-                        <a class="btn btn-primary nav-cta" asp-area="" asp-page="/Register">Register</a>
-                    </div>
+                    @if (isSignedIn)
+                    {
+                        <div class="nav-auth nav-auth-signedin">
+                            <span class="user-greeting">Welcome, @displayName</span>
+                            <form method="post" asp-page="/Logout" class="logout-form">
+                                <button type="submit" class="btn btn-outline-light nav-cta">Logout</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="nav-auth">
+                            <a class="nav-link auth-link" asp-area="" asp-page="/Login">Login</a>
+                            <a class="btn btn-primary nav-cta" asp-area="" asp-page="/Register">Register</a>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>

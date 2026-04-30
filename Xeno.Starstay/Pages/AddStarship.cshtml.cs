@@ -295,7 +295,7 @@ namespace Xeno.Starstay.Pages
             [Display(Name = "Alien location")]
             public string AlienLocation { get; set; } = string.Empty;
 
-            [Display(Name = "Photo URL")]
+            [Display(Name = "Optional external image URL")]
             public string PhotoUrl { get; set; } = string.Empty;
 
             [Display(Name = "Upload photo")]

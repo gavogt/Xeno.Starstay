@@ -1,8 +1,95 @@
-﻿@page
+@page
 @model PrivacyModel
 @{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<section class="privacy-page-shell">
+    <div class="privacy-hero">
+        <p class="eyebrow">Privacy Charter</p>
+        <h1 class="display-5">Starstay protects traveler and host signals across every orbit.</h1>
+        <p class="section-copy">
+            This privacy policy explains what Starstay collects, why it is collected, and how guest and host data
+            is used while browsing listings, managing accounts, and booking starship stays.
+        </p>
+    </div>
+
+    <div class="privacy-grid">
+        <article class="privacy-card privacy-card-wide">
+            <p class="starport-label">What We Collect</p>
+            <h2>Account, listing, and booking data</h2>
+            <p>
+                When you register, Starstay stores account information such as your email address, display name,
+                encrypted authentication credentials, and profile details needed to sign in and manage your stays.
+            </p>
+            <p>
+                If you host, Starstay stores listing information you submit, including starship name, alien location,
+                pricing, uploaded or linked images, stay summaries, and habitat compatibility details.
+            </p>
+            <p>
+                If you book a voyage, Starstay stores reservation windows, total nebula credits, and optional arrival
+                notes so hosts and travelers can coordinate the stay.
+            </p>
+        </article>
+
+        <article class="privacy-card">
+            <p class="starport-label">Why We Use It</p>
+            <h2>To run the marketplace</h2>
+            <p>
+                Starstay uses your data to authenticate accounts, publish listings, calculate bookings, prevent overlap
+                conflicts, and show the correct information to the right host or traveler.
+            </p>
+        </article>
+
+        <article class="privacy-card">
+            <p class="starport-label">Session Signals</p>
+            <h2>Cookies and signed-in state</h2>
+            <p>
+                Starstay uses authentication and session cookies to keep you signed in, preserve your active session,
+                and personalize parts of the interface such as traveler greetings and host controls.
+            </p>
+        </article>
+
+        <article class="privacy-card">
+            <p class="starport-label">Marketplace Visibility</p>
+            <h2>Public listing information</h2>
+            <p>
+                Starship listings are intended to be visible in the public marketplace. Travelers may see listing images,
+                pricing, compatibility details, location names, and host-facing stay descriptions before signing in.
+            </p>
+        </article>
+
+        <article class="privacy-card">
+            <p class="starport-label">Reservation Integrity</p>
+            <h2>Booking protection and conflict checks</h2>
+            <p>
+                Booking details are used to block overlapping reservations, display upcoming voyages to signed-in users,
+                and prevent hosts from deleting listings that already have active traveler commitments.
+            </p>
+        </article>
+
+        <article class="privacy-card privacy-card-wide">
+            <p class="starport-label">Your Control</p>
+            <h2>How to manage your data</h2>
+            <p>
+                You can update future listing content by editing or deleting host data that has not yet been tied to a live
+                traveler booking. You can also choose what optional details to include in listings, such as habitat notes
+                and compatibility features.
+            </p>
+            <p>
+                Because Starstay is still an evolving prototype marketplace, this policy may be refined as messaging,
+                payments, traveler history, and additional account tools are introduced.
+            </p>
+        </article>
+
+        <article class="privacy-card privacy-card-wide">
+            <p class="starport-label">Scope</p>
+            <h2>Current Starstay environment</h2>
+            <p>
+                Starstay currently runs as an ASP.NET Core application with Identity, Entity Framework Core, SQL Server,
+                and local static asset storage for listing imagery. This policy reflects the behavior of the app as it
+                exists today in that environment.
+            </p>
+        </article>
+    </div>
+</section>

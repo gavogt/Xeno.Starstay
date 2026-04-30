@@ -43,12 +43,14 @@
                     <div class="auth-field">
                         <label asp-for="Input.PhotoFile" class="form-label"></label>
                         <input asp-for="Input.PhotoFile" class="form-control auth-control auth-file-control" accept=".jpg,.jpeg,.png,.webp" />
+                        <p class="auth-hint">Upload a cabin image here, or use the optional external image field on the right.</p>
                         <span asp-validation-for="Input.PhotoFile" class="text-danger"></span>
                     </div>
 
                     <div class="auth-field">
                         <label asp-for="Input.PhotoUrl" class="form-label"></label>
                         <input asp-for="Input.PhotoUrl" class="form-control auth-control" placeholder="Optional external image URL" />
+                        <p class="auth-hint">Optional. Leave this blank if you already uploaded an image file.</p>
                         <span asp-validation-for="Input.PhotoUrl" class="text-danger"></span>
                     </div>
                 </div>

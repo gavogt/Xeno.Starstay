@@ -873,6 +873,101 @@ body.modal-open {
   padding: 1.5rem;
 }
 
+.traveler-filter-panel {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+  padding: 1.15rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(61, 246, 255, 0.14);
+}
+
+.traveler-filter-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.traveler-filter-checks {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.traveler-filter-grid {
+  display: grid;
+  gap: 1rem;
+  align-items: stretch;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+}
+
+.traveler-filter-card {
+  display: grid;
+  gap: 0.95rem;
+  min-height: 100%;
+  padding: 1rem 1.05rem;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(61, 246, 255, 0.08), transparent 34%),
+    rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(61, 246, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.traveler-filter-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.traveler-filter-kicker {
+  margin: 0;
+  color: var(--neon-cyan);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.traveler-filter-copy h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.02rem;
+  text-shadow: 0 0 10px rgba(61, 246, 255, 0.12);
+}
+
+.traveler-filter-copy p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.traveler-filter-input-wrap {
+  margin-top: auto;
+}
+
+.traveler-filter-input {
+  min-height: 3.75rem;
+  font-size: 1rem;
+  border-color: rgba(61, 246, 255, 0.22);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.01);
+}
+
+.traveler-filter-input::placeholder {
+  color: rgba(203, 189, 242, 0.72);
+}
+
+.traveler-toggle-card {
+  min-height: 100%;
+}
+
+.traveler-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+}
+
 .traveler-panel-heading {
   display: flex;
   align-items: baseline;
@@ -1078,6 +1173,54 @@ body.modal-open {
 .booking-window-card-active {
   border-color: rgba(61, 246, 255, 0.2);
   box-shadow: 0 0 18px rgba(61, 246, 255, 0.08);
+}
+
+.privacy-page-shell {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1rem auto 4rem;
+}
+
+.privacy-hero,
+.privacy-card {
+  border-radius: 28px;
+  background: rgba(10, 10, 19, 0.86);
+  border: 1px solid rgba(61, 246, 255, 0.26);
+  box-shadow:
+    0 0 34px rgba(61, 246, 255, 0.12),
+    0 0 56px rgba(255, 43, 214, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.privacy-hero {
+  padding: 2rem 1.8rem;
+  text-align: center;
+}
+
+.privacy-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.privacy-card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.45rem;
+}
+
+.privacy-card h2 {
+  margin-bottom: 0;
+}
+
+.privacy-card p {
+  margin-bottom: 0;
+  color: var(--text-soft);
+  line-height: 1.75;
+}
+
+.privacy-card-wide {
+  grid-column: span 2;
 }
 
 .auth-card {
@@ -1354,10 +1497,21 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 
+  .traveler-filter-grid,
+  .traveler-filter-checks,
+  .privacy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .privacy-card-wide {
+    grid-column: auto;
+  }
+
   .traveler-panel-heading,
   .traveler-card-heading,
   .booking-cost-line,
-  .traveler-cta-row {
+  .traveler-cta-row,
+  .traveler-filter-actions {
     align-items: flex-start;
     flex-direction: column;
   }

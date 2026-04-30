@@ -69,6 +69,91 @@
     }
 
     <section class="traveler-panel">
+        <div class="traveler-filter-panel">
+            <div class="traveler-panel-heading">
+                <h2>Search The Orbit Deck</h2>
+                <p>Drill down by starship signal, location, and habitat compatibility.</p>
+            </div>
+
+            <form method="get" class="traveler-filter-form">
+                <div class="traveler-filter-grid">
+                    <div class="traveler-filter-card">
+                        <div class="traveler-filter-copy">
+                            <p class="traveler-filter-kicker">Signal Search</p>
+                            <h3>Global Search</h3>
+                            <p>Scan vessel names, hosts, gravity, atmosphere, habitat notes, and amenity language from one field.</p>
+                        </div>
+
+                        <div class="auth-field traveler-filter-input-wrap">
+                            <input id="SearchTerm" name="SearchTerm" value="@Model.SearchTerm" class="form-control auth-control traveler-filter-input" placeholder="Try: Velora, low-gravity, oxygen, pets, quantum dock..." />
+                        </div>
+                    </div>
+
+                    <div class="traveler-filter-card">
+                        <div class="traveler-filter-copy">
+                            <p class="traveler-filter-kicker">Orbit Filter</p>
+                            <h3>Location Channel</h3>
+                            <p>Focus the marketplace on a single moonbase, ring station, or alien district before layering compatibility filters.</p>
+                        </div>
+
+                        <div class="auth-field traveler-filter-input-wrap">
+                            <select id="SelectedLocation" name="SelectedLocation" class="form-select auth-control host-select traveler-filter-input">
+                                <option value="">All locations in orbit</option>
+                                @foreach (var location in Model.AvailableLocations)
+                                {
+                                    <option value="@location" selected="@(location == Model.SelectedLocation)">
+                                        @location
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="traveler-filter-checks">
+                    <label class="host-toggle-card traveler-toggle-card">
+                        <input asp-for="RequiresOxygen" class="form-check-input host-toggle-input" />
+                        <span class="host-toggle-content">
+                            <strong>Oxygen Ready Only</strong>
+                            <span>Show only locations that actively supply breathable oxygen.</span>
+                        </span>
+                    </label>
+
+                    <label class="host-toggle-card traveler-toggle-card">
+                        <input asp-for="RequiresAlienPets" class="form-check-input host-toggle-input" />
+                        <span class="host-toggle-content">
+                            <strong>Alien Pets Welcome</strong>
+                            <span>Filter for stays where companion spores, drakes, and orbitals are allowed.</span>
+                        </span>
+                    </label>
+
+                    <label class="host-toggle-card traveler-toggle-card">
+                        <input asp-for="RequiresSiliconSupport" class="form-check-input host-toggle-input" />
+                        <span class="host-toggle-content">
+                            <strong>Silicon-Safe Habitat</strong>
+                            <span>Limit results to listings compatible with silicon lifeforms.</span>
+                        </span>
+                    </label>
+
+                    <label class="host-toggle-card traveler-toggle-card">
+                        <input asp-for="RequiresQuantumDock" class="form-check-input host-toggle-input" />
+                        <span class="host-toggle-content">
+                            <strong>Quantum Dock Access</strong>
+                            <span>Show only listings with premium warp-side docking clearance.</span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="traveler-filter-actions">
+                    <button type="submit" class="btn btn-primary">Search Listings</button>
+                    @if (Model.HasActiveFilters)
+                    {
+                        <a class="btn btn-outline-light" asp-page="/Starports">Clear Filters</a>
+                    }
+                </div>
+            </form>
+        </div>
+
         <div class="traveler-panel-heading">
             <h2>Live Starship Listings</h2>
             <p>@Model.Listings.Count stay@(Model.Listings.Count == 1 ? "" : "s") now boarding</p>
@@ -77,7 +162,14 @@
         @if (Model.Listings.Count == 0)
         {
             <div class="empty-state">
-                <p>No live starship listings yet. Hosts will appear here the moment they launch a stay.</p>
+                @if (Model.HasActiveFilters)
+                {
+                    <p>No listings matched the current orbit filters. Try a broader search signal, a different location channel, or relax one of the habitat requirements.</p>
+                }
+                else
+                {
+                    <p>No live starship listings yet. Hosts will appear here the moment they launch a stay.</p>
+                }
             </div>
         }
         else

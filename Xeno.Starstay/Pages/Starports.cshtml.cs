@@ -20,13 +20,41 @@ namespace Xeno.Starstay.Pages
             _userManager = userManager;
         }
 
+        [BindProperty(SupportsGet = true)]
+        public string SearchTerm { get; set; } = string.Empty;
+
+        [BindProperty(SupportsGet = true)]
+        public string SelectedLocation { get; set; } = string.Empty;
+
+        [BindProperty(SupportsGet = true)]
+        public bool RequiresOxygen { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public bool RequiresAlienPets { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public bool RequiresSiliconSupport { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public bool RequiresQuantumDock { get; set; }
+
         public List<StarshipListing> Listings { get; private set; } = new();
 
         public List<StarshipBooking> MyBookings { get; private set; } = new();
 
+        public List<string> AvailableLocations { get; private set; } = new();
+
         public string? StatusMessage { get; private set; }
 
         public string StatusCssClass { get; private set; } = "auth-status-info";
+
+        public bool HasActiveFilters =>
+            !string.IsNullOrWhiteSpace(SearchTerm) ||
+            !string.IsNullOrWhiteSpace(SelectedLocation) ||
+            RequiresOxygen ||
+            RequiresAlienPets ||
+            RequiresSiliconSupport ||
+            RequiresQuantumDock;
 
         [TempData]
         public string? TempStatusMessage { get; set; }
@@ -43,9 +71,70 @@ namespace Xeno.Starstay.Pages
 
         private async Task LoadListingsAsync()
         {
-            Listings = await _dbContext.StarshipListings
+            AvailableLocations = await _dbContext.StarshipListings
+                .AsNoTracking()
+                .OrderBy(listing => listing.AlienLocation)
+                .Select(listing => listing.AlienLocation)
+                .Distinct()
+                .ToListAsync();
+
+            var listingsQuery = _dbContext.StarshipListings
                 .AsNoTracking()
                 .Include(listing => listing.HostUser)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                var term = SearchTerm.Trim();
+                var normalizedTerm = term.ToLowerInvariant();
+                var matchesOxygenKeyword = normalizedTerm.Contains("oxygen") || normalizedTerm.Contains("breathable");
+                var matchesPetsKeyword = normalizedTerm.Contains("pet") || normalizedTerm.Contains("pets") || normalizedTerm.Contains("drake") || normalizedTerm.Contains("drakes") || normalizedTerm.Contains("companion");
+                var matchesSiliconKeyword = normalizedTerm.Contains("silicon") || normalizedTerm.Contains("mineral");
+                var matchesQuantumKeyword = normalizedTerm.Contains("quantum") || normalizedTerm.Contains("dock") || normalizedTerm.Contains("docking") || normalizedTerm.Contains("warp");
+                var matchesSpaKeyword = normalizedTerm.Contains("spa") || normalizedTerm.Contains("glow") || normalizedTerm.Contains("bioluminescent");
+
+                listingsQuery = listingsQuery.Where(listing =>
+                    listing.VesselName.Contains(term) ||
+                    listing.HostUser!.DisplayName.Contains(term) ||
+                    listing.AlienLocation.Contains(term) ||
+                    listing.Summary.Contains(term) ||
+                    listing.AtmosphereProfile.Contains(term) ||
+                    listing.GravityProfile.Contains(term) ||
+                    (listing.AmenityNotes != null && listing.AmenityNotes.Contains(term)) ||
+                    (matchesOxygenKeyword && listing.HasOxygen) ||
+                    (matchesPetsKeyword && listing.AllowsAlienPets) ||
+                    (matchesSiliconKeyword && listing.SupportsSiliconLifeforms) ||
+                    (matchesQuantumKeyword && listing.HasQuantumDock) ||
+                    (matchesSpaKeyword && listing.HasBioluminescentSpa));
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedLocation))
+            {
+                var location = SelectedLocation.Trim();
+                listingsQuery = listingsQuery.Where(listing => listing.AlienLocation == location);
+            }
+
+            if (RequiresOxygen)
+            {
+                listingsQuery = listingsQuery.Where(listing => listing.HasOxygen);
+            }
+
+            if (RequiresAlienPets)
+            {
+                listingsQuery = listingsQuery.Where(listing => listing.AllowsAlienPets);
+            }
+
+            if (RequiresSiliconSupport)
+            {
+                listingsQuery = listingsQuery.Where(listing => listing.SupportsSiliconLifeforms);
+            }
+
+            if (RequiresQuantumDock)
+            {
+                listingsQuery = listingsQuery.Where(listing => listing.HasQuantumDock);
+            }
+
+            Listings = await listingsQuery
                 .OrderByDescending(listing => listing.CreatedUtc)
                 .ToListAsync();
         }

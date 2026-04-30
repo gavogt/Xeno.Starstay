@@ -2,7 +2,7 @@
 
 Starstay is an alien-inspired lodging marketplace built with ASP.NET Core Razor Pages. Think of it as an interstellar Airbnb for starship suites, orbiting villas, bioluminescent habitats, and luxury alien stays.
 
-![Starstay Zeta Reticulan Banner]([docs/images/starstay-zeta-reticulan-banner.png](https://github.com/gavogt/Xeno.Starstay/blob/master/Xeno.Starstay/docs/images/starstay-zeta-reticulan-banner.png?raw=true))
+![Starstay Zeta Reticulan Banner](Xeno.Starstay/docs/images/starstay-zeta-reticulan-banner.png)
 
 ## What It Does
 

@@ -44,6 +44,7 @@
                     @if (isSignedIn)
                     {
                         <div class="nav-auth nav-auth-signedin">
+                            <a class="btn btn-primary nav-cta" asp-page="/AddStarship">Add Starship</a>
                             <span class="user-greeting">Welcome, @displayName</span>
                             <form method="post" asp-page="/Logout" class="logout-form">
                                 <button type="submit" class="btn btn-outline-light nav-cta">Logout</button>

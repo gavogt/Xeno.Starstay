@@ -1,0 +1,111 @@
+@page
+@model Xeno.Starstay.Pages.AddStarshipModel
+@{
+    ViewData["Title"] = "Add Starship";
+}
+
+<section class="host-page-shell">
+    <div class="host-header">
+        <p class="eyebrow">Host Console</p>
+        <h1 class="display-5">List a starship stay for curious travelers.</h1>
+        <p class="section-copy">
+            Add a photogenic cabin, set your nightly price, and publish an alien destination that feels worthy of Starstay.
+        </p>
+    </div>
+
+    <div class="host-grid">
+        <section class="host-panel">
+            <h2>Create Listing</h2>
+
+            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+            {
+                <div class="auth-status @(Model.WasSuccessful ? "auth-status-success" : "auth-status-info")">
+                    @Model.StatusMessage
+                </div>
+            }
+
+            <form method="post" enctype="multipart/form-data" class="host-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="auth-field">
+                    <label asp-for="Input.VesselName" class="form-label"></label>
+                    <input asp-for="Input.VesselName" class="form-control auth-control" placeholder="The Velvet Nova Skiff" />
+                    <span asp-validation-for="Input.VesselName" class="text-danger"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Input.AlienLocation" class="form-label"></label>
+                    <input asp-for="Input.AlienLocation" class="form-control auth-control" placeholder="Orbit of Velora Prime" />
+                    <span asp-validation-for="Input.AlienLocation" class="text-danger"></span>
+                </div>
+
+                <div class="auth-grid">
+                    <div class="auth-field">
+                        <label asp-for="Input.PhotoFile" class="form-label"></label>
+                        <input asp-for="Input.PhotoFile" class="form-control auth-control auth-file-control" accept=".jpg,.jpeg,.png,.webp" />
+                        <span asp-validation-for="Input.PhotoFile" class="text-danger"></span>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="Input.PhotoUrl" class="form-label"></label>
+                        <input asp-for="Input.PhotoUrl" class="form-control auth-control" placeholder="Optional external image URL" />
+                        <span asp-validation-for="Input.PhotoUrl" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Input.NightlyRate" class="form-label"></label>
+                    <input asp-for="Input.NightlyRate" class="form-control auth-control" placeholder="480" />
+                    <span asp-validation-for="Input.NightlyRate" class="text-danger"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Input.Summary" class="form-label"></label>
+                    <textarea asp-for="Input.Summary" class="form-control auth-control host-textarea" placeholder="Describe the alien ambience, the mood, and what makes the stay unforgettable."></textarea>
+                    <span asp-validation-for="Input.Summary" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-submit">Save Listing</button>
+            </form>
+        </section>
+
+        <section class="host-panel">
+            <div class="host-panel-heading">
+                <h2>Your Starships</h2>
+                <p>@Model.Listings.Count listing@(Model.Listings.Count == 1 ? "" : "s") in orbit</p>
+            </div>
+
+            @if (Model.Listings.Count == 0)
+            {
+                <div class="empty-state">
+                    <p>No starships listed yet. Your first one will appear here as soon as you save it.</p>
+                </div>
+            }
+            else
+            {
+                <div class="host-listings">
+                    @foreach (var listing in Model.Listings)
+                    {
+                        <article class="host-listing-card">
+                            <img src="@listing.PhotoUrl" alt="@listing.VesselName" class="host-listing-image" />
+                            <div class="host-listing-body">
+                                <p class="starport-label">Hosted Destination</p>
+                                <h3>@listing.VesselName</h3>
+                                <p class="host-location">@listing.AlienLocation</p>
+                                <p class="host-summary">@listing.Summary</p>
+                                <div class="host-meta">
+                                    <span>@listing.CreatedUtc.ToLocalTime().ToString("MMM d, yyyy")</span>
+                                    <strong>$@listing.NightlyRate.ToString("0.00")/night</strong>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

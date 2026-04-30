@@ -22,7 +22,7 @@
     </p>
     <div class="hero-actions">
         <a class="btn btn-primary btn-lg" href="#explore-starports">Explore Starports</a>
-        <a class="btn btn-outline-light btn-lg" href="#">List Your Starship</a>
+        <a class="btn btn-outline-light btn-lg" asp-page="/AddStarship">List Your Starship</a>
     </div>
 </section>
 
@@ -50,14 +50,12 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a class="btn btn-primary btn-lg" href="#explore-starports">Continue Exploring</a>
-            <form method="post" asp-page="/Logout" class="auth-inline-form">
-                <button type="submit" class="btn btn-outline-light btn-lg">Logout</button>
-            </form>
+            <a class="btn btn-outline-light btn-lg" asp-page="/AddStarship">Add A Starship</a>
         }
         else
         {
             <a class="btn btn-primary btn-lg" asp-page="/Login">Login</a>
-            <a class="btn btn-outline-light btn-lg" asp-page="/Register">Register</a>
+            <a class="btn btn-outline-light btn-lg" asp-page="/AddStarship">Host On Starstay</a>
         }
     </div>
 </section>
